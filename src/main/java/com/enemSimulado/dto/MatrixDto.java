@@ -1,7 +1,5 @@
 package com.enemSimulado.dto;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,26 +9,16 @@ import lombok.Data;
 
 @Data
 @Entity
-public class SessionDto {
+public class MatrixDto {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
 	@Column
-	private String telegramChatId;
+	private String matrix;
 	
 	@Column
-	private int stage;
-	
-	@Column
-	private int isActive;
-	
-	@Column
-	private LocalDateTime createdAt;
-	
-	@Column
-	private LocalDateTime simulEndedAt;
-	
-	@Column
-	private LocalDateTime endedAt;
+	private String description;
+
 }

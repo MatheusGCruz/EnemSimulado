@@ -11,26 +11,23 @@ import lombok.Data;
 
 @Data
 @Entity
-public class SessionDto {
+public class StageDto {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
 	@Column
-	private String telegramChatId;
+	private String stage;
 	
 	@Column
-	private int stage;
+	private String telegramCommand;
+
+	@Column
+	private String description;
 	
 	@Column
-	private int isActive;
+	private String parentStage;
 	
 	@Column
-	private LocalDateTime createdAt;
-	
-	@Column
-	private LocalDateTime simulEndedAt;
-	
-	@Column
-	private LocalDateTime endedAt;
+	private String message;
 }

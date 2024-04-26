@@ -19,6 +19,9 @@ public class BotService extends TelegramLongPollingBot {
 	    
 	    private boolean botStarted = false;
 	    
+	    @Autowired
+	    FluxService fluxService;
+	    
 	        
 	    public String sendNewMessage(BotService bot) {     	
 	    	String botMessage = "";
@@ -45,7 +48,16 @@ public class BotService extends TelegramLongPollingBot {
 
 	    @Override
 	    public void onUpdateReceived(Update update) {
-
+			String chatId = update.getMessage().getChatId().toString();
+			String receivedMessage = update.getMessage().getText();
+	    	char commandChar = '/';
+			
+	    	if(commandChar == receivedMessage.charAt(0)){
+	    		sendMessage(fluxService.getNextMessage(receivedMessage), chatId);
+	    	}
+	    	
+	    	
+	    	
 	    }
 
 	    public void sendMessage(String message, String chatId) {
