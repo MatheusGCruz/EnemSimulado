@@ -20,10 +20,13 @@ public class SessionDto {
 	private String telegramChatId;
 	
 	@Column
-	private int stage;
+	private Integer stage;
 	
 	@Column
-	private int isActive;
+	private Integer nextStage;
+	
+	@Column
+	private Integer isActive;
 	
 	@Column
 	private LocalDateTime createdAt;
@@ -33,4 +36,21 @@ public class SessionDto {
 	
 	@Column
 	private LocalDateTime endedAt;
+	
+	// Simulado
+	@Column
+	private Integer ano;
+	
+	@Column
+	private Integer matriz;
+	
+	@Column
+	private Integer linguagem;
+	
+	@Column
+	private Integer quantidadeTopico;
+	
+	@Column
+	private Integer ocultarCorreta;
+	
 }
