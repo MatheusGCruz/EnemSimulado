@@ -34,13 +34,40 @@ public class QuestionDto {
 		private String alternativaE;
 		
 		@Column
-		private int alternativaCorreta;
+		private Integer  alternativaCorreta;
 		
 		@Column
-		private int ano;
+		private Integer  ano;
 		
 		@Column
-		private int sessao;
+		private Integer  sessao;
+		
+		@Column
+		private Integer  azul;
+		
+		@Column
+		private Integer  amarelo;
+		
+		@Column
+		private Integer  branco;
+		
+		@Column
+		private Integer  rosa;
+		
+		@Column
+		private Integer  laranja;		
+		
+		@Column
+		private Integer  cinza;		
+		
+		@Column
+		private Integer  verde;
+		
+		@Column
+		private String imagem;
+		
+		@Column
+		private String linguagem;
 
 
 }

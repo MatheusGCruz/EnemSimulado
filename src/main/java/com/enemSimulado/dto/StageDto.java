@@ -17,7 +17,7 @@ public class StageDto {
 	private Integer id;
 	
 	@Column
-	private String stage;
+	private Integer stage;
 	
 	@Column
 	private String telegramCommand;
@@ -26,8 +26,14 @@ public class StageDto {
 	private String description;
 	
 	@Column
-	private String parentStage;
+	private Integer parentStage;
+	
+	@Column
+	private Integer childStage;
 	
 	@Column
 	private String message;
+	
+	@Column
+	private Integer hasFollowUp;
 }

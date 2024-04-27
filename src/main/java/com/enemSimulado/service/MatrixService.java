@@ -1,4 +1,4 @@
-package com.enemSimulado.flux;
+package com.enemSimulado.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import com.enemSimulado.dto.MatrixDto;
 import com.enemSimulado.repository.MatrixRepository;
 
 @Service
-public class MatrixFlux {
+public class MatrixService {
 	
 	@Autowired
 	MatrixRepository matrixRepository;

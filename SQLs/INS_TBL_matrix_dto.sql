@@ -57,4 +57,4 @@ H30 - Relacionar as tecnologias de comunicação e informação ao desenvolvimento d
 
   ('Matriz de Referência de Matemática e suas Tecnologias',''),
   ('Matriz de Referência de Ciências da Natureza e suas Tecnologias',''),
-  ('Matriz de Referência de Ciências Humanas e suas Tecnologias','')  ---*/
+  ('Matriz de Referência de Ciências Humanas e suas Tecnologias','')  ---*/

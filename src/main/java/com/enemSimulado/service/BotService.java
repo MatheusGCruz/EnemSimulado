@@ -50,13 +50,7 @@ public class BotService extends TelegramLongPollingBot {
 	    public void onUpdateReceived(Update update) {
 			String chatId = update.getMessage().getChatId().toString();
 			String receivedMessage = update.getMessage().getText();
-	    	char commandChar = '/';
-			
-	    	if(commandChar == receivedMessage.charAt(0)){
-	    		sendMessage(fluxService.getNextMessage(receivedMessage), chatId);
-	    	}
-	    	
-	    	
+    		sendMessage(fluxService.getNextMessage(receivedMessage, chatId), chatId);    	
 	    	
 	    }
 
