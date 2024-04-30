@@ -45,6 +45,9 @@ public class SessionDto {
 	private Integer matriz;
 	
 	@Column
+	private Integer questao;
+	
+	@Column
 	private Integer linguagem;
 	
 	@Column

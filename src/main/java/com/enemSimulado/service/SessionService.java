@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.enemSimulado.auxiliary.TextAuxiliary;
 import com.enemSimulado.dto.SessionDto;
 import com.enemSimulado.dto.StageDto;
+import com.enemSimulado.dto.TelegramDto;
 import com.enemSimulado.repository.SessionRepository;
 import com.enemSimulado.repository.StageRepository;
 
@@ -26,13 +27,13 @@ public class SessionService {
 	@Autowired
 	TextAuxiliary textAuxiliary;
 	
-	public String createNewSession(String chatId) {
-    	StageDto newStage = stageRepository.findFirstByStage(5);
+	public List<TelegramDto> createNewSession(String chatId, Integer stage) {
+    	StageDto newStage = stageRepository.findFirstByStage(stage);
     	SessionDto activeSession = getActiveSession(chatId, newStage);      	
-    	return configSession(activeSession, "");
+    	return configSession(activeSession, "", chatId);
 	}
 	
-	public String configSession(SessionDto activeSession, String command) {		
+	public List<TelegramDto> configSession(SessionDto activeSession, String command, String chatId) {		
 		
 		switch(activeSession.getStage()) {	
 			case 501:	
@@ -40,10 +41,10 @@ public class SessionService {
 				break;
 							
 		}
-		return saveSession(activeSession);	
+		return textAuxiliary.returnSimpleMessage(saveSession(activeSession), chatId);	
 	}
 	
-	public String encerrarSessoes(String chatId) {		
+	public List<TelegramDto> encerrarSessoes(String chatId) {		
 		
 		List<SessionDto> userSessions = new ArrayList<SessionDto>();
 		userSessions = sessionRepository.findAllBytelegramChatId(chatId);
@@ -54,8 +55,10 @@ public class SessionService {
 			sessionRepository.save(session);
 		}
 		
-		
-		return "Sessão Encerrada";
+		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
+		TelegramDto addMessage = new TelegramDto(chatId, "Sessão Encerrada", null);
+		returnList.add(addMessage);
+		return returnList;
 	}
 	
 	public SessionDto findActiveSession(String chatId) {
@@ -103,7 +106,7 @@ public class SessionService {
 		return activeSession;
 	}
 	
-	private String saveSession(SessionDto activeSession) {
+	public String saveSession(SessionDto activeSession) {
 		StageDto currentStage = stageRepository.findFirstByStage(activeSession.getStage());
 		StageDto nextStage = stageRepository.findFirstByStage(activeSession.getNextStage());
 		activeSession.setStage(activeSession.getNextStage());

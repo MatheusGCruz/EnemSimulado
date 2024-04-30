@@ -67,7 +67,16 @@ public class QuestionDto {
 		private String imagem;
 		
 		@Column
-		private String linguagem;
+		private String imagemAux;
+		
+		@Column
+		private String imagemAlternativas;
+		
+		@Column
+		private Integer linguagem;
+		
+		@Column
+		private Integer matriz;
 
 
 }
