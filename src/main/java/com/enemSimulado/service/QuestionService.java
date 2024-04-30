@@ -12,6 +12,7 @@ import com.enemSimulado.dto.MatrixDto;
 import com.enemSimulado.dto.QuestionDto;
 import com.enemSimulado.dto.SessionDto;
 import com.enemSimulado.dto.StageDto;
+import com.enemSimulado.dto.TelegramDto;
 import com.enemSimulado.repository.QuestionRepository;
 import com.enemSimulado.repository.StageRepository;
 
@@ -30,65 +31,114 @@ public class QuestionService {
 	@Autowired
 	TextAuxiliary textAuxiliary;
 	
-	public String getQuestion(String command, String chatId, Integer stage) {
+	
+	
+	
+	public String checkIfExist(String command, String chatId) {
+		List<Integer> commandsList = textAuxiliary.questionParameters(command);
+		SessionDto activeSession = sessionService.findActiveSession(chatId);
+		activeSession.setAno(commandsList.get(0));
+		activeSession.setQuestao(commandsList.get(1));	
+		activeSession.setLinguagem(commandsList.get(2));
+		
+		Integer matriz = (Integer) activeSession.getQuestao()/45;
+		activeSession.setMatriz(matriz+1);
+		
+		return sessionService.saveSession(activeSession);
+
+	}
+	
+	public String addNewQuestion(String command, String chatId) {
+		SessionDto activeSession = sessionService.findActiveSession(chatId);
+		QuestionDto newQuestion = new QuestionDto();
+		
+		newQuestion.setQuestao(command);
+		newQuestion.setAzul(activeSession.getQuestao());
+		newQuestion.setAno(activeSession.getAno());
+		newQuestion.setMatriz(activeSession.getMatriz());
+		newQuestion.setLinguagem(activeSession.getLinguagem());		
+		
+		questionRepository.save(newQuestion);
+		return sessionService.saveSession(activeSession);
+	}
+	
+	public String addImageForQuestion(String fileId, String chatId) {
+		SessionDto activeSession = sessionService.findActiveSession(chatId);
+		QuestionDto newQuestion = new QuestionDto();
+
+		
+		newQuestion = questionRepository.findByAzulAndAnoAndMatrizAndLinguagem(
+				activeSession.getQuestao(),activeSession.getAno(),activeSession.getMatriz(),activeSession.getLinguagem());
+		
+		newQuestion.setImagem(fileId);
+		
+		questionRepository.save(newQuestion);
+		return sessionService.saveSession(activeSession);
+	}
+	
+	public List<TelegramDto> setQuestion(String command, String chatId, Integer stage, String fileId) {
+		
+		switch(stage) {
+			
+			case 900: return textAuxiliary.returnSimpleMessage(checkIfExist(command, chatId), chatId);
+			case 901: return textAuxiliary.returnSimpleMessage(addNewQuestion(command, chatId), chatId);
+			
+			case 910: return textAuxiliary.returnSimpleMessage(checkIfExist(command, chatId), chatId);
+			case 911: return textAuxiliary.returnSimpleMessage(addNewQuestion(command, chatId), chatId);
+			case 912: return textAuxiliary.returnSimpleMessage(addImageForQuestion(fileId, chatId), chatId);
+		}
+	
+		return textAuxiliary.returnSimpleMessage("Invalid Consult", chatId);
+	}
+	
+	public List<TelegramDto> getQuestionList(String command, String chatId, Integer stage, String fileId) {
 		
 		switch(stage) {
 			case 401: return getTextQuestion(command, chatId);
 			case 402: return getSpecificQuestion(command, chatId);
 		}
 	
-		return "Invalid Consult";
+		return new ArrayList<TelegramDto>();
 	}
 	
-	public String getTextQuestion(String texto, String chatId) {		
+	public List<TelegramDto> getTextQuestion(String texto, String chatId) {		
 		List<QuestionDto> questionList = new ArrayList<QuestionDto>();
 		try {
 			questionList = questionRepository.findByQuestaoContaining(texto);
 		}catch(Exception ex) {
-			return ex.getMessage();
+			System.err.println("Error sending message: " +ex.getMessage());
 		}
 		
 		sessionService.encerrarSessoes(chatId);
-		return stringFactory(questionList, "questao");
+		return textAuxiliary.question2Telegram(questionList, chatId);
+
 	}
 	
-	public String getSpecificQuestion(String command, String chatId) {
+	public List<TelegramDto> getSpecificQuestion(String command, String chatId) {
+		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
 		List<String> questionParameters = textAuxiliary.commaSeparated(command);
 		List<QuestionDto> questionList = new ArrayList<QuestionDto>();
 		Integer ano = textAuxiliary.list2Int(questionParameters, 1);
 		Integer numero = textAuxiliary.list2Int(questionParameters, 2);
-		if(ano == 0) {return "Ano inválido";}
-		if(numero == 0) {return "Numero da Questão inválido";}
+		if(ano == 0) {return textAuxiliary.returnSimpleMessage("Ano inválido", chatId);}
+		if(numero == 0) {return textAuxiliary.returnSimpleMessage("Numero de Questão inválido", chatId);}
 		
 		sessionService.encerrarSessoes(chatId);
 		
 		switch(questionParameters.get(0)) {
-			case "azul": return stringFactory(questionRepository.findByAnoAndAzul(ano, numero), "questao");
+			case "azul": return textAuxiliary.question2Telegram(questionRepository.findByAnoAndAzul(ano, numero), chatId);
 		}		
 
-		return stringFactory(questionList, "questao");
+		return textAuxiliary.returnSimpleMessage("Questão não encontrada", chatId);
 	}
 	
-	public String getRandomQuestion(String chatId, SessionDto activeSession) {
+	public List<QuestionDto> getRandomQuestion(String chatId, SessionDto activeSession) {
 		List<QuestionDto> questionList = new ArrayList<QuestionDto>();
-		return stringFactory(questionList, "questao");
+		return questionList;
 	}
 	
 	
-	private String stringFactory(List<QuestionDto> questionList, String Object) {
-		
-		StringBuilder returnString = new StringBuilder();
-		for(QuestionDto question : questionList) {
-			
-			switch (Object) {
-	        case "questao": 
-	        	returnString.append(question.getQuestao());
-	        	returnString.append(textAuxiliary.skipLine());
-	        	break;	        
-			}		
-		}		
-		return (returnString.isEmpty())?"Sem resultados.":returnString.toString();
-	}
+
 	
 
 		

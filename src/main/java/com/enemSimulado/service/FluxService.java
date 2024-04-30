@@ -6,8 +6,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.enemSimulado.auxiliary.TextAuxiliary;
 import com.enemSimulado.dto.SessionDto;
 import com.enemSimulado.dto.StageDto;
+import com.enemSimulado.dto.TelegramDto;
 import com.enemSimulado.repository.SessionRepository;
 import com.enemSimulado.repository.StageRepository;
 
@@ -29,7 +31,10 @@ public class FluxService {
 	@Autowired
 	StageRepository stageRepository;
 	
-	public String getNextMessage(String command, String chatId) {
+	@Autowired
+	TextAuxiliary textAuxiliary;
+	
+	public List<TelegramDto> getNextMessage(String command, String chatId, String fileId) {
 		
 		SessionDto activeSession = sessionService.findActiveSession(chatId);
 		
@@ -42,32 +47,36 @@ public class FluxService {
 
 			Integer subGroup = (int) activeSession.getStage()/100;
 			switch(subGroup) {
-				case 4:	return questionService.getQuestion(command, chatId, activeSession.getStage());	// Pesquisa Questoes
-				case 5: return sessionService.configSession(activeSession, command);					// Config sessao
-				case 6: return simuladoService.getRandomQuestion(chatId, activeSession);				// Simulado
+				case 4:	return questionService.getQuestionList(command, chatId, activeSession.getStage(), fileId);	// Pesquisa Questoes
+				case 5: return sessionService.configSession(activeSession, command, chatId);					// Config sessao
+				case 6: return simuladoService.getRandomQuestion(chatId, activeSession);						// Simulado
+				case 9: return questionService.setQuestion(command, chatId, activeSession.getStage(), fileId);	//Registros
 			}
 			
 		}
 		else {
 			switch (command) {	
-	        case "/matrizes": return matrixService.getMatrix();
-	        case "/pesquisa": return getMessage(command, chatId);
-	        case "/simulado": return sessionService.createNewSession(chatId);
+	        case "/matrizes"	: return matrixService.getMatrix(chatId);
+	        case "/pesquisa"	: return getMessage(command, chatId);
+	        case "/simulado"	: return sessionService.createNewSession(chatId, 5);
+	        case "/new"			: return sessionService.createNewSession(chatId, 90);
+	        case "/newImage"	: return sessionService.createNewSession(chatId, 91);
 			}
 		}
 		
 		
-		return command.concat(" - Invalid Command");
+		return textAuxiliary.returnSimpleMessage(command.concat(" - Invalid Command"), chatId);
 	}
 	
 	
 	
-	public String getMessage(String command, String chatId) {	
+	public List<TelegramDto> getMessage(String command, String chatId) {	
 		StageDto currentStage = stageRepository.findOneBytelegramCommand(command);
 		if(currentStage != null && currentStage.getHasFollowUp() == 1) {
 			sessionService.getActiveSession(chatId, currentStage);				
 		}	
-		return currentStage.getMessage();				
+
+		return textAuxiliary.returnSimpleMessage(currentStage.getMessage(), chatId);				
 	}
 	
 	
