@@ -1,16 +1,20 @@
 package com.enemSimulado.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
@@ -27,16 +31,20 @@ public class BotService extends TelegramLongPollingBot {
 	    @Autowired
 	    FluxService fluxService;
 	    
+	    @Autowired
+	    StageService stageService;
+	    
 	        
 	    public String sendNewMessage(BotService bot) {     	
-	    	String botMessage = "";
+	    	String botMessage = "";    	
  	
 	    	if(!botStarted) {
 	        	
 	            try {
 	                TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
 	                botsApi.registerBot(bot);
-	                botMessage = "Creating New Instance";
+	                botMessage = "Creating New Instance";	
+	                setActualCommands(baseChatId);
 	                bot.sendMessage(botMessage, baseChatId);
 	                botStarted = true;
 	            } catch (TelegramApiException e) {
@@ -51,7 +59,8 @@ public class BotService extends TelegramLongPollingBot {
 
 	    }
 
-	    @Override
+
+		@Override
 	    public void onUpdateReceived(Update update) {
 			String chatId = update.getMessage().getChatId().toString();
 			String receivedMessage = update.getMessage().getText();
@@ -76,7 +85,9 @@ public class BotService extends TelegramLongPollingBot {
 	    
 	    
 	    public void sendTelegramMessages(List<TelegramDto> messageList) {
+	    	
 	    	for(TelegramDto message: messageList) {
+	    		setActualCommands(message.getChatId());
 	    		if(message.getText() != null) {sendMessage(message.getText(), message.getChatId());	}
 	    		if(message.getPhoto() != null) {sendImage(message.getPhoto(), message.getChatId());	}
 	    	}
@@ -108,6 +119,17 @@ public class BotService extends TelegramLongPollingBot {
 	            e.printStackTrace();
 	        }
 	    }
+	    
+	    private void setActualCommands(String chatId) {
+            SetMyCommands setCommands = new SetMyCommands();
+            setCommands.setCommands(stageService.getCommands(chatId));
+            try {
+				execute(setCommands);
+			} catch (TelegramApiException e) {
+				e.printStackTrace();
+			}
+	    }
+	    
 
 	    @Override
 	    public String getBotUsername() {

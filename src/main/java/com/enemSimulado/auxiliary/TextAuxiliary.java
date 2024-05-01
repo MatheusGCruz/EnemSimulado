@@ -131,6 +131,14 @@ public class TextAuxiliary {
 			if(question.getImagemAlternativas() != null) { returnList.add(telegramObject(chatId, null, question.getImagemAlternativas())); }
 		}
 		
+		if(returnList.size() == 0) {
+			returnList = returnSimpleMessage("Questão não encontrada", chatId);
+		}
+		if(returnList.size() >= 10) {
+			returnList = returnSimpleMessage("Foram encontradas mais de 10 questões com o termo pesquisado. Por favor, refine sua pesquisa.", chatId);
+		}
+		
+		
 		return returnList;
 	}
 	

@@ -62,6 +62,21 @@ public class QuestionService {
 		return sessionService.saveSession(activeSession);
 	}
 	
+	public String addNewBulkQuestion(String command, String chatId) {
+		SessionDto activeSession = sessionService.findActiveSession(chatId);
+		QuestionDto newQuestion = new QuestionDto();
+		
+		newQuestion.setQuestao(command);
+		newQuestion.setAzul(activeSession.getQuestao());
+		newQuestion.setAno(activeSession.getAno());
+		newQuestion.setMatriz(activeSession.getMatriz());
+		newQuestion.setLinguagem(activeSession.getLinguagem());		
+		
+		questionRepository.save(newQuestion);
+		activeSession.setQuestao(activeSession.getQuestao()+1);
+		return sessionService.saveSession(activeSession);
+	}
+	
 	public String addImageForQuestion(String fileId, String chatId) {
 		SessionDto activeSession = sessionService.findActiveSession(chatId);
 		QuestionDto newQuestion = new QuestionDto();
@@ -86,6 +101,10 @@ public class QuestionService {
 			case 910: return textAuxiliary.returnSimpleMessage(checkIfExist(command, chatId), chatId);
 			case 911: return textAuxiliary.returnSimpleMessage(addNewQuestion(command, chatId), chatId);
 			case 912: return textAuxiliary.returnSimpleMessage(addImageForQuestion(fileId, chatId), chatId);
+			
+			case 920: return textAuxiliary.returnSimpleMessage(checkIfExist(command, chatId), chatId);
+			case 921: return textAuxiliary.returnSimpleMessage(addNewBulkQuestion(command, chatId), chatId);
+			
 		}
 	
 		return textAuxiliary.returnSimpleMessage("Invalid Consult", chatId);
