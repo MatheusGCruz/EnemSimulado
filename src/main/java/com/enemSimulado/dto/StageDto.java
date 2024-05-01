@@ -36,4 +36,7 @@ public class StageDto {
 	
 	@Column
 	private Integer hasFollowUp;
+	
+	@Column
+	private Integer adminStage;
 }

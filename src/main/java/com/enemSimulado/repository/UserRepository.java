@@ -7,4 +7,6 @@ import com.enemSimulado.dto.UserDto;
 @Repository
 public interface UserRepository extends JpaRepository<UserDto, Long> {
 
+	UserDto findOneByTelegramChatId(String chatId);
+
 }

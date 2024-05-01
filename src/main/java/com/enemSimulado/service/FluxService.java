@@ -16,23 +16,13 @@ import com.enemSimulado.repository.StageRepository;
 @Service
 public class FluxService {
 	
-	@Autowired
-	MatrixService matrixService;
-	
-	@Autowired
-	QuestionService questionService;
-	
-	@Autowired
-	SessionService sessionService;
-
-	@Autowired
-	SimuladoService simuladoService;
-	
-	@Autowired
-	StageRepository stageRepository;
-	
-	@Autowired
-	TextAuxiliary textAuxiliary;
+	@Autowired	MatrixService 	matrixService;
+	@Autowired	QuestionService questionService;
+	@Autowired	SessionService 	sessionService;
+	@Autowired	SimuladoService simuladoService;
+	@Autowired 	UserService 	userService;
+	@Autowired	StageRepository stageRepository;
+	@Autowired	TextAuxiliary 	textAuxiliary;
 	
 	public List<TelegramDto> getNextMessage(String command, String chatId, String fileId) {
 		
@@ -48,19 +38,21 @@ public class FluxService {
 			Integer subGroup = (int) activeSession.getStage()/100;
 			switch(subGroup) {
 				case 4:	return questionService.getQuestionList(command, chatId, activeSession.getStage(), fileId);	// Pesquisa Questoes
-				case 5: return sessionService.configSession(activeSession, command, chatId);					// Config sessao
-				case 6: return simuladoService.getRandomQuestion(chatId, activeSession);						// Simulado
-				case 9: return questionService.setQuestion(command, chatId, activeSession.getStage(), fileId);	//Registros
+				case 5: return sessionService.configSession(activeSession, command, chatId);						// Config sessao
+				case 6: return simuladoService.getRandomQuestion(chatId, activeSession);							// Simulado
+				case 9: return questionService.setQuestion(command, chatId, activeSession.getStage(), fileId);		//Registros
 			}
 			
 		}
 		else {
 			switch (command) {	
-	        case "/matrizes"	: return matrixService.getMatrix(chatId);
-	        case "/pesquisa"	: return getMessage(command, chatId);
-	        case "/simulado"	: return sessionService.createNewSession(chatId, 5);
-	        case "/new"			: return sessionService.createNewSession(chatId, 90);
-	        case "/newImage"	: return sessionService.createNewSession(chatId, 91);
+			case "/registrar"				: return userService.registerUser("Teste", chatId, 1);
+	        case "/matrizes"				: return matrixService.getMatrix(chatId);
+	        case "/pesquisa"				: return getMessage(command, chatId);
+	        case "/simulado"				: return sessionService.createNewSession(chatId, 5);
+	        case "/nova_questao"			: return sessionService.createNewSession(chatId, 90);
+	        case "/nova_questao_com_imagem"	: return sessionService.createNewSession(chatId, 91);
+	        case "/lote_questao"			: return sessionService.createNewSession(chatId, 92);
 			}
 		}
 		
@@ -70,7 +62,8 @@ public class FluxService {
 	
 	
 	
-	public List<TelegramDto> getMessage(String command, String chatId) {	
+	public List<TelegramDto> getMessage(String command, String chatId) {
+		command = command.replaceAll("[^a-zA-Z0-9]", "");
 		StageDto currentStage = stageRepository.findOneBytelegramCommand(command);
 		if(currentStage != null && currentStage.getHasFollowUp() == 1) {
 			sessionService.getActiveSession(chatId, currentStage);				

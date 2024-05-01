@@ -23,8 +23,11 @@ public class UserDto {
 	private LocalDateTime createdAt;
 	
 	@Column
-	private int isActive;
+	private Integer isActive;
 	
 	@Column
 	private String telegramChatId;
+	
+	@Column
+	private Integer isAdmin;
 }
