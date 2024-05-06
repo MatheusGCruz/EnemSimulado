@@ -65,11 +65,15 @@ public class BotService extends TelegramLongPollingBot {
 			if(update.getMessage() != null) {
 				String chatId = update.getMessage().getChatId().toString();
 				String receivedMessage = update.getMessage().getText();
-				String fileId = "";
+				String fileId = null;
 				if(receivedMessage == null) {receivedMessage = "Empty Message";};
 				try {				
 						if(update.getMessage() != null && update.getMessage().getPhoto() != null && update.getMessage().getPhoto().get(0).getFileId() != null) {
 							fileId = update.getMessage().getPhoto().get(0).getFileId();
+							receivedMessage = update.getMessage().getCaption();
+						}
+						if(update.getMessage() != null && update.getMessage().getCaption() != null && receivedMessage == "Empty Message") {
+							receivedMessage = update.getMessage().getCaption();
 						}
 					
 				}
