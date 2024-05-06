@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import com.enemSimulado.dto.MatrixDto;
 import com.enemSimulado.dto.QuestionDto;
@@ -146,6 +148,45 @@ public class TextAuxiliary {
 	private TelegramDto telegramObject(String chatId, String message, String photo) {
 		TelegramDto newObject = new TelegramDto(chatId, message, photo);
 		return newObject;
+	}
+	
+	
+	public InlineKeyboardMarkup replyKeyboard() {
+		
+		List<String> optionsList = new ArrayList<String>();
+		optionsList.add("A");
+		optionsList.add("B");
+		optionsList.add("C");
+		optionsList.add("D");
+		optionsList.add("E");
+		
+		List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> firstRow = new ArrayList<>();
+        List<InlineKeyboardButton> secondRow = new ArrayList<>();
+        
+        for(String option:optionsList) {
+        	InlineKeyboardButton newButton = new InlineKeyboardButton();
+        	newButton.setText(option);
+        	newButton.setCallbackData(option);
+        	
+        	firstRow.add(newButton);
+        }
+        
+    	InlineKeyboardButton newButton = new InlineKeyboardButton();
+    	newButton.setText("Pular");
+    	newButton.setCallbackData("Pular");    	
+    	secondRow.add(newButton);
+
+        // Add buttons A, B, C, D, E, and "pular" to the row
+        // Add the row to the keyboard
+        keyboard.add(firstRow);
+        keyboard.add(secondRow);
+
+        // Create an InlineKeyboardMarkup object with the keyboard
+        InlineKeyboardMarkup markupKeyboard = new InlineKeyboardMarkup();
+        markupKeyboard.setKeyboard(keyboard);
+        
+        return markupKeyboard;
 	}
 	
 }

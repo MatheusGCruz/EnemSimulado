@@ -27,7 +27,7 @@ public class StageService {
     	List<StageDto>	stageList = stageRepository.findAll();
     	
     	for(StageDto stage: stageList) {
-    		if(stage.getTelegramCommand() != null) {
+    		if(stage.getShowMenu() == 1) {
     			if(stage.getAdminStage() != 1) {
     				commandsList.add(new BotCommand(stage.getTelegramCommand(), stage.getDescription()));
     			}

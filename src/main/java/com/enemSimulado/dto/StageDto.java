@@ -35,7 +35,10 @@ public class StageDto {
 	private String message;
 	
 	@Column
-	private Integer hasFollowUp;
+	private Integer hasFollowUp;	
+	
+	@Column
+	private Integer showMenu;
 	
 	@Column
 	private Integer adminStage;

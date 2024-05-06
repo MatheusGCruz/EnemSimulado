@@ -44,8 +44,14 @@ public class QuestionService {
 		Integer matriz = (Integer) activeSession.getQuestao()/45;
 		activeSession.setMatriz(matriz+1);
 		
-		return sessionService.saveSession(activeSession);
+		QuestionDto newQuestion = new QuestionDto();		
+		newQuestion = questionRepository.findByAzulAndAnoAndMatrizAndLinguagem(
+				activeSession.getQuestao(),activeSession.getAno(),activeSession.getMatriz(),activeSession.getLinguagem());
+		if(newQuestion == null) {
+			return sessionService.saveSession(activeSession);
+		}
 
+		return "Ja existe uma questão registrada para esses parametros";
 	}
 	
 	public String addNewQuestion(String command, String chatId) {
@@ -62,7 +68,7 @@ public class QuestionService {
 		return sessionService.saveSession(activeSession);
 	}
 	
-	public String addNewBulkQuestion(String command, String chatId) {
+	public String addNewBulkQuestion(String command, String chatId, String fileId) {
 		SessionDto activeSession = sessionService.findActiveSession(chatId);
 		QuestionDto newQuestion = new QuestionDto();
 		
@@ -70,7 +76,8 @@ public class QuestionService {
 		newQuestion.setAzul(activeSession.getQuestao());
 		newQuestion.setAno(activeSession.getAno());
 		newQuestion.setMatriz(activeSession.getMatriz());
-		newQuestion.setLinguagem(activeSession.getLinguagem());		
+		newQuestion.setLinguagem(activeSession.getLinguagem());	
+		newQuestion.setImagem(fileId);
 		
 		questionRepository.save(newQuestion);
 		activeSession.setQuestao(activeSession.getQuestao()+1);
@@ -103,7 +110,7 @@ public class QuestionService {
 			case 912: return textAuxiliary.returnSimpleMessage(addImageForQuestion(fileId, chatId), chatId);
 			
 			case 920: return textAuxiliary.returnSimpleMessage(checkIfExist(command, chatId), chatId);
-			case 921: return textAuxiliary.returnSimpleMessage(addNewBulkQuestion(command, chatId), chatId);
+			case 921: return textAuxiliary.returnSimpleMessage(addNewBulkQuestion(command, chatId, fileId), chatId);
 			
 		}
 	

@@ -15,9 +15,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+import com.enemSimulado.auxiliary.TextAuxiliary;
 import com.enemSimulado.dto.TelegramDto;
 
 @Service
@@ -28,12 +30,9 @@ public class BotService extends TelegramLongPollingBot {
 	    
 	    private boolean botStarted = false;
 	    
-	    @Autowired
-	    FluxService fluxService;
-	    
-	    @Autowired
-	    StageService stageService;
-	    
+	    @Autowired	    FluxService 	fluxService;
+	    @Autowired    	StageService 	stageService;
+	    @Autowired		TextAuxiliary	textAuxiliary;
 	        
 	    public String sendNewMessage(BotService bot) {     	
 	    	String botMessage = "";    	
@@ -43,9 +42,8 @@ public class BotService extends TelegramLongPollingBot {
 	            try {
 	                TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
 	                botsApi.registerBot(bot);
-	                botMessage = "Creating New Instance";	
 	                setActualCommands(baseChatId);
-	                bot.sendMessage(botMessage, baseChatId);
+	                bot.sendInitialMessage();
 	                botStarted = true;
 	            } catch (TelegramApiException e) {
 	                e.printStackTrace();
@@ -62,24 +60,35 @@ public class BotService extends TelegramLongPollingBot {
 
 		@Override
 	    public void onUpdateReceived(Update update) {
-			String chatId = update.getMessage().getChatId().toString();
-			String receivedMessage = update.getMessage().getText();
-			String fileId = "";
-			try {
-				if(receivedMessage == null) {
-					receivedMessage = "Empty Message";
-					if(update.getMessage() != null && update.getMessage().getPhoto() != null && update.getMessage().getPhoto().get(0).getFileId() != null) {
-						fileId = update.getMessage().getPhoto().get(0).getFileId();
-						receivedMessage = "Image received";
-					}
+			
+			// New Message
+			if(update.getMessage() != null) {
+				String chatId = update.getMessage().getChatId().toString();
+				String receivedMessage = update.getMessage().getText();
+				String fileId = "";
+				if(receivedMessage == null) {receivedMessage = "Empty Message";};
+				try {				
+						if(update.getMessage() != null && update.getMessage().getPhoto() != null && update.getMessage().getPhoto().get(0).getFileId() != null) {
+							fileId = update.getMessage().getPhoto().get(0).getFileId();
+							receivedMessage = "Image received";
+						}
+					
+				}
+				catch(Exception ex) {
+					System.err.println("Error sending message: " + ex.getMessage());
 				}
 				
-			}
-			catch(Exception ex) {
-				System.err.println("Error sending message: " + ex.getMessage());
+				sendTelegramMessages(fluxService.getNextMessage(receivedMessage, chatId, fileId)); 
 			}
 			
-			sendTelegramMessages(fluxService.getNextMessage(receivedMessage, chatId, fileId));  	
+			// Edited Message
+			if(update.getEditedMessage() != null) {
+				String chatId = update.getEditedMessage().getChatId().toString();
+				String receivedMessage = update.getEditedMessage().getText();
+				String editedMessageId = update.getEditedMessage().getMessageId().toString();
+				String teste ="";
+			}
+ 	
 	    	
 	    }
 	    
@@ -99,6 +108,21 @@ public class BotService extends TelegramLongPollingBot {
 	        newMessage.setChatId(chatId);
 	        newMessage.setText(message);
 	        	
+	        try {
+	        	execute(newMessage);
+	            System.out.println("Message sent successfully!");
+	      
+	        } catch (TelegramApiException e) {
+	            System.err.println("Error sending message: " + e.getMessage());
+	        }
+	    }
+	    
+	    public void sendInitialMessage() {
+	    			
+	        SendMessage newMessage = new SendMessage();
+	        newMessage.setChatId(baseChatId);
+	        newMessage.setText("Creating New Instance");
+	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard());
 	        try {
 	        	execute(newMessage);
 	            System.out.println("Message sent successfully!");
