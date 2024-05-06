@@ -70,7 +70,6 @@ public class BotService extends TelegramLongPollingBot {
 				try {				
 						if(update.getMessage() != null && update.getMessage().getPhoto() != null && update.getMessage().getPhoto().get(0).getFileId() != null) {
 							fileId = update.getMessage().getPhoto().get(0).getFileId();
-							receivedMessage = "Image received";
 						}
 					
 				}
