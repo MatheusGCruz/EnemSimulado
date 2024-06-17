@@ -23,6 +23,7 @@ public class FluxService {
 	@Autowired 	UserService 	userService;
 	@Autowired	StageRepository stageRepository;
 	@Autowired	TextAuxiliary 	textAuxiliary;
+	@Autowired 	ContactService	contactService;
 	
 	public List<TelegramDto> getNextMessage(String command, String chatId, String fileId) {
 		
@@ -30,19 +31,26 @@ public class FluxService {
 		
 		if(activeSession.getIsActive() != null && activeSession.getIsActive() == 1) {
 			switch (command) {
-				case "/encerrar": return sessionService.encerrarSessoes(chatId);
-				case "/ano": return getMessage(command, chatId);
-				case "/texto": return getMessage(command, chatId);        
+				case "/encerrar": 		return sessionService.encerrarSessoes(chatId);
+				case "/ano": 			return getMessage(command, chatId);
+				case "/texto": 			return getMessage(command, chatId);   
+				case "/dica": 			return getMessage(command, chatId); 
+				case "/comentario": 	return getMessage(command, chatId); 
+				case "/bug": 			return getMessage(command, chatId); 
+				case "/reclamacao": 	return getMessage(command, chatId); 
 			}
-
-			Integer subGroup = (int) activeSession.getStage()/100;
-			switch(subGroup) {
-				case 4:	return questionService.getQuestionList(command, chatId, activeSession.getStage(), fileId);	// Pesquisa Questoes
-				case 5: return sessionService.configSession(activeSession, command, chatId);						// Config sessao
-				case 6: return simuladoService.getRandomQuestion(chatId, activeSession);							// Simulado
-				case 9: return questionService.setQuestion(command, chatId, activeSession.getStage(), fileId);		//Registros
+			if(activeSession.getStage() != null) {
+				Integer subGroup = (int) activeSession.getStage()/100;
+				switch(subGroup) {
+					case 4:	return questionService.getQuestionList(command, chatId, activeSession.getStage(), fileId);	// Pesquisa Questoes
+					case 5: return sessionService.configSession(activeSession, command, chatId);						// Config sessao
+					case 6: return simuladoService.getRandomQuestion(chatId, activeSession);							// Simulado
+					case 8:	return contactService.insertContact(command, chatId, activeSession.getStage());
+					case 9: return questionService.setQuestion(command, chatId, activeSession.getStage(), fileId);		//Registros
+				}
 			}
 			
+			return textAuxiliary.returnSimpleMessage(command.concat(" - Comando inválido para a sessão ativa. Encerre a sessão etentenovamente"), chatId);
 		}
 		else {
 			switch (command) {	
@@ -50,6 +58,7 @@ public class FluxService {
 	        case "/matrizes"				: return matrixService.getMatrix(chatId);
 	        case "/pesquisa"				: return getMessage(command, chatId);
 	        case "/simulado"				: return sessionService.createNewSession(chatId, 5);
+	        case "/contato"					: return getMessage(command, chatId);
 	        case "/nova_questao"			: return sessionService.createNewSession(chatId, 90);
 	        case "/nova_questao_com_imagem"	: return sessionService.createNewSession(chatId, 91);
 	        case "/lote_questao"			: return sessionService.createNewSession(chatId, 92);
@@ -57,7 +66,7 @@ public class FluxService {
 		}
 		
 		
-		return textAuxiliary.returnSimpleMessage(command.concat(" - Invalid Command"), chatId);
+		return textAuxiliary.returnSimpleMessage(command.concat(" - Comando inválido"), chatId);
 	}
 	
 	
