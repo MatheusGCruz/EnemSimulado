@@ -24,7 +24,7 @@ public class SimuladoService {
 	
 	
 	public List<TelegramDto> getRandomQuestion(String chatId, SessionDto activeSession) {
-		return textAuxiliary.question2Telegram(questionService.getRandomQuestion(chatId, activeSession), chatId);
+		return questionService.getRandomQuestion(chatId, activeSession);
 	} 
 	
 	

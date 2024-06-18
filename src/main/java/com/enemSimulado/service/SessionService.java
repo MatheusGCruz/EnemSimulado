@@ -32,6 +32,17 @@ public class SessionService {
     	return configSession(activeSession, "", chatId);
 	}
 	
+	public List<TelegramDto> createNewFastSim(String chatId, Integer stage) {
+    	StageDto newStage = stageRepository.findFirstByStage(stage);
+    	SessionDto activeSession = getActiveSession(chatId, newStage); 
+    	activeSession.setAno(0);
+    	activeSession.setLinguagem(1);
+    	activeSession.setMatriz(0);
+    	activeSession.setQuantidadeTopico(5);
+    	activeSession.setOcultarCorreta(1);
+    	return configSession(activeSession, "", chatId);
+	}
+	
 	public List<TelegramDto> configSession(SessionDto activeSession, String command, String chatId) {		
 		
 		List<TelegramDto> returnList = new ArrayList<TelegramDto>();

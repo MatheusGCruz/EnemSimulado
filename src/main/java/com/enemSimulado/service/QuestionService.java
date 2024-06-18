@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.enemSimulado.auxiliary.TextAuxiliary;
+import com.enemSimulado.dto.AnswerDto;
 import com.enemSimulado.dto.MatrixDto;
 import com.enemSimulado.dto.QuestionDto;
 import com.enemSimulado.dto.SessionDto;
@@ -164,15 +165,22 @@ public class QuestionService {
 		return textAuxiliary.returnSimpleMessage("Questão não encontrada", chatId);
 	}
 	
-	public List<QuestionDto> getRandomQuestion(String chatId, SessionDto activeSession) {
+	public List<TelegramDto> getRandomQuestion(String chatId, SessionDto activeSession) {
 		List<QuestionDto> questionList = new ArrayList<QuestionDto>();
 		
 		Long quantityAnswered = answerRepository.getQuantityAnswered(chatId);
-		Long selectedQuantity = 1L;
+		Integer selectedQuantity = 1;
 		if(activeSession.getQuantidadeTopico() != null) {
-			selectedQuantity = (long) activeSession.getQuantidadeTopico();
+			selectedQuantity = activeSession.getQuantidadeTopico();
 		}
-		Integer matrix = (quantityAnswered.intValue()/selectedQuantity.intValue())+1;
+		Integer matrix = (quantityAnswered.intValue()/selectedQuantity)+1;
+		
+		if(matrix >= 5) {
+			String timeExpend = textAuxiliary.getPeriodFromSeconds(answerRepository.getTimeElapsed(chatId));
+			answerRepository.inactivateAnswerSessions(chatId);
+			return textAuxiliary.returnSimpleMessage("Simulado encerrado. Seu tempo gasto foi de "+timeExpend, chatId);
+		}
+		
 		List<Integer> possibleQuestions = questionRepository.getAllValidQuestionsId(chatId, matrix);
 		
 		Integer randomIndex = new Random().nextInt(possibleQuestions.size());
@@ -180,11 +188,25 @@ public class QuestionService {
 		
         Optional<QuestionDto> selectedQuestion = questionRepository.findById((long) selectedQuestionIndex);
         
-        questionList.add(selectedQuestion.get());
-	
-		return questionList;
+        if(selectedQuestion.isPresent()) {
+            questionList.add(selectedQuestion.get());            
+            addAnswer(chatId, selectedQuestion.get());
+        }
+
+		return textAuxiliary.question2Telegram(questionList, chatId);
 	}
 	
+	public void addAnswer(String chatId, QuestionDto question){
+		AnswerDto newAnswer = new AnswerDto();
+		newAnswer.setChatId(chatId);
+		newAnswer.setCurrentlyActive(1);
+		newAnswer.setQuestionId(question.getId());
+		newAnswer.setMatrix(question.getMatriz());
+		newAnswer.setCreatedAt(LocalDateTime.now());
+		newAnswer.setCorrectAnswerId(question.getAlternativaCorreta());
+		
+		answerRepository.save(newAnswer);
+	}
 	
 
 	

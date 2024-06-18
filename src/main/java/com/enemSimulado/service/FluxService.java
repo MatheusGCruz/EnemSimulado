@@ -58,6 +58,7 @@ public class FluxService {
 	        case "/matrizes"				: return matrixService.getMatrix(chatId);
 	        case "/pesquisa"				: return getMessage(command, chatId);
 	        case "/simulado"				: return sessionService.createNewSession(chatId, 5);
+	        case "/simulado_rapido"			: return sessionService.createNewFastSim(chatId, 51);
 	        case "/contato"					: return getMessage(command, chatId);
 	        case "/nova_questao"			: return sessionService.createNewSession(chatId, 90);
 	        case "/nova_questao_com_imagem"	: return sessionService.createNewSession(chatId, 91);

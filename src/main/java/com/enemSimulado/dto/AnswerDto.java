@@ -35,4 +35,10 @@ public class AnswerDto {
 	@Column
 	private Integer currentlyActive;
 	
+	@Column
+	private LocalDateTime createdAt;
+	
+	@Column
+	private LocalDateTime answeredAt;
+	
 }

@@ -123,6 +123,26 @@ public class TextAuxiliary {
 		return returnList;
 	}
 	
+	public String getPeriodFromSeconds(Integer totalTime) {
+		Integer hours = totalTime.intValue()/3600;
+		Integer hoursRemain = totalTime.intValue()%3600;
+		
+		Integer minutes = hoursRemain/60;
+		Integer seconds = hoursRemain%60;
+
+		StringBuilder returnString = new StringBuilder();
+		
+		returnString.append(hours.toString());
+		returnString.append(" h : ");		
+		returnString.append(minutes.toString());
+		returnString.append(" min : ");		
+		returnString.append(seconds.toString());
+		returnString.append(" s ");
+		
+		return returnString.toString();
+		
+	}
+	
 	
 	public List<TelegramDto> question2Telegram(List<QuestionDto> questionList, String chatId){
 		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
