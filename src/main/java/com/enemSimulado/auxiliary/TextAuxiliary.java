@@ -148,6 +148,8 @@ public class TextAuxiliary {
 		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
 		
 		for(QuestionDto question:questionList) {
+			returnList.add(questionHeader(question, chatId));
+			
 			if(question.getImagem() != null) { returnList.add(telegramObject(chatId, null, question.getImagem())); }
 			if(question.getQuestao() != null) { returnList.add(telegramObject(chatId, question.getQuestao(), null)); }
 			if(question.getImagemAlternativas() != null) { returnList.add(telegramObject(chatId, null, question.getImagemAlternativas())); }
@@ -162,6 +164,16 @@ public class TextAuxiliary {
 		
 		
 		return returnList;
+	}
+	
+	private TelegramDto questionHeader(QuestionDto question, String chatId) {
+		StringBuilder header = new StringBuilder();
+		header.append("Questão azul: " + question.getAzul().toString());
+		header.append(", Ano: "+question.getAno().toString());
+		
+		
+		TelegramDto newObject = new TelegramDto(chatId, header.toString(), null);
+		return newObject;
 	}
 	
 	
