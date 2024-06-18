@@ -160,6 +160,7 @@ public class QuestionService {
 	
 	public List<QuestionDto> getRandomQuestion(String chatId, SessionDto activeSession) {
 		List<QuestionDto> questionList = new ArrayList<QuestionDto>();
+		
 		return questionList;
 	}
 	

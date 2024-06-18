@@ -20,6 +20,9 @@ public class ContactService {
 	ContactRepository contactRepository;
 	
 	@Autowired
+	AnswerService answerService;
+	
+	@Autowired
 	TextAuxiliary textAuxiliary;
 	
 	public List<TelegramDto> insertContact(String command, String chatId, Integer stage) {
@@ -39,7 +42,7 @@ public class ContactService {
 	public List<TelegramDto> insertTip(String command, String chatId, Integer stage) {
 
 		sessionService.encerrarSessoes(chatId);
-		return textAuxiliary.returnSimpleMessage(stage.toString(), chatId);
+		return textAuxiliary.returnSimpleMessage(answerService.getQuantity(chatId), chatId);
 	}
 
 }
