@@ -17,7 +17,6 @@ import com.enemSimulado.repository.StageRepository;
 @Service
 public class SessionService {
 	
-	
 	@Autowired
 	SessionRepository sessionRepository;
 	
@@ -35,13 +34,18 @@ public class SessionService {
 	
 	public List<TelegramDto> configSession(SessionDto activeSession, String command, String chatId) {		
 		
+		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
+		List<TelegramDto> messageList = new ArrayList<TelegramDto>();
 		switch(activeSession.getStage()) {	
 			case 501:	
 				activeSession.setAno(textAuxiliary.string2Int(command));
 				break;
 							
 		}
-		return textAuxiliary.returnSimpleMessage(saveSession(activeSession), chatId);	
+		returnList.addAll(textAuxiliary.returnSimpleMessage(saveSession(activeSession), chatId));	
+		returnList.addAll(messageList);
+		
+		return returnList;
 	}
 	
 	public List<TelegramDto> encerrarSessoes(String chatId) {		

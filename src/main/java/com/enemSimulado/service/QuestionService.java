@@ -3,6 +3,8 @@ package com.enemSimulado.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import com.enemSimulado.dto.QuestionDto;
 import com.enemSimulado.dto.SessionDto;
 import com.enemSimulado.dto.StageDto;
 import com.enemSimulado.dto.TelegramDto;
+import com.enemSimulado.repository.AnswerRepository;
 import com.enemSimulado.repository.QuestionRepository;
 import com.enemSimulado.repository.StageRepository;
 
@@ -25,6 +28,9 @@ public class QuestionService {
 	@Autowired
 	StageRepository stageRepository;
 		
+	@Autowired
+	AnswerRepository answerRepository;
+	
 	@Autowired
 	SessionService sessionService;
 	
@@ -161,6 +167,21 @@ public class QuestionService {
 	public List<QuestionDto> getRandomQuestion(String chatId, SessionDto activeSession) {
 		List<QuestionDto> questionList = new ArrayList<QuestionDto>();
 		
+		Long quantityAnswered = answerRepository.getQuantityAnswered(chatId);
+		Long selectedQuantity = 1L;
+		if(activeSession.getQuantidadeTopico() != null) {
+			selectedQuantity = (long) activeSession.getQuantidadeTopico();
+		}
+		Integer matrix = (quantityAnswered.intValue()/selectedQuantity.intValue())+1;
+		List<Integer> possibleQuestions = questionRepository.getAllValidQuestionsId(chatId, matrix);
+		
+		Integer randomIndex = new Random().nextInt(possibleQuestions.size());
+        Integer selectedQuestionIndex = possibleQuestions.get(randomIndex);
+		
+        Optional<QuestionDto> selectedQuestion = questionRepository.findById((long) selectedQuestionIndex);
+        
+        questionList.add(selectedQuestion.get());
+	
 		return questionList;
 	}
 	

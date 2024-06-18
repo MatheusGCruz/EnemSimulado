@@ -10,7 +10,7 @@ import com.enemSimulado.dto.AnswerDto;
 @Repository
 public interface AnswerRepository extends JpaRepository<AnswerDto, Long>{
 	
-	@Query("SELECT COUNT(*) FROM AnswerDto WHERE chatId = :chatId AND matrix = :matrixId AND currentlyActive = 1")
-    Long getQuantityAnswered(@Param("chatId") String chatId, @Param("matrixId") Integer matrixId);
+	@Query("SELECT COUNT(*) FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1")
+    Long getQuantityAnswered(@Param("chatId") String chatId);
 
 }

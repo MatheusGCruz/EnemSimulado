@@ -12,6 +12,6 @@ public class AnswerService {
 	AnswerRepository answerRepository;
 	
 	public String getQuantity(String chatId) {
-		return answerRepository.getQuantityAnswered(chatId, 1).toString();
+		return answerRepository.getQuantityAnswered(chatId).toString();
 	}
 }
