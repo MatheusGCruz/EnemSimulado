@@ -117,7 +117,7 @@ public class TextAuxiliary {
 	
 	public List<TelegramDto> returnSimpleMessage(String message, String chatId){
 		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
-		TelegramDto addMessage = new TelegramDto(chatId, message, null);
+		TelegramDto addMessage = new TelegramDto(chatId, message, null, null);
 		returnList.add(addMessage);
 		
 		return returnList;
@@ -150,9 +150,12 @@ public class TextAuxiliary {
 		for(QuestionDto question:questionList) {
 			returnList.add(questionHeader(question, chatId));
 			
-			if(question.getImagem() != null) { returnList.add(telegramObject(chatId, null, question.getImagem())); }
-			if(question.getQuestao() != null) { returnList.add(telegramObject(chatId, question.getQuestao(), null)); }
-			if(question.getImagemAlternativas() != null) { returnList.add(telegramObject(chatId, null, question.getImagemAlternativas())); }
+			if(question.getImagem() != null) { returnList.add(telegramObject(chatId, null, question.getImagem(), null)); }
+			if(question.getQuestao() != null) { returnList.add(telegramObject(chatId, question.getQuestao(), null, null)); }
+			if(question.getImagemAlternativas() != null) { returnList.add(telegramObject(chatId, null, question.getImagemAlternativas(), null)); }
+			
+			returnList.add(questionFooter(question, chatId));			
+			
 		}
 		
 		if(returnList.size() == 0) {
@@ -160,8 +163,7 @@ public class TextAuxiliary {
 		}
 		if(returnList.size() >= 10) {
 			returnList = returnSimpleMessage("Foram encontradas mais de 10 questões com o termo pesquisado. Por favor, refine sua pesquisa.", chatId);
-		}
-		
+		}	
 		
 		return returnList;
 	}
@@ -169,50 +171,75 @@ public class TextAuxiliary {
 	private TelegramDto questionHeader(QuestionDto question, String chatId) {
 		StringBuilder header = new StringBuilder();
 		header.append("Questão azul: " + question.getAzul().toString());
-		header.append(", Ano: "+question.getAno().toString());
+		header.append(", Ano: "+question.getAno().toString());		
 		
+		TelegramDto newObject = new TelegramDto(chatId, header.toString(), null, null);
+		return newObject;
+	}
+	
+	private TelegramDto questionFooter(QuestionDto question, String chatId) {
+		List<String> footer = new ArrayList<String>();
+		footer.add((question.getAlternativaA()!=null)?question.getAlternativaA():"Alternativa A");
+		footer.add((question.getAlternativaB()!=null)?question.getAlternativaB():"Alternativa B");
+		footer.add((question.getAlternativaC()!=null)?question.getAlternativaC():"Alternativa C");
+		footer.add((question.getAlternativaD()!=null)?question.getAlternativaD():"Alternativa D");
+		footer.add((question.getAlternativaE()!=null)?question.getAlternativaE():"Alternativa E");
+		footer.add("Pular");		
 		
-		TelegramDto newObject = new TelegramDto(chatId, header.toString(), null);
+		TelegramDto newObject = new TelegramDto(chatId, "Alternativas:", null, footer);
 		return newObject;
 	}
 	
 	
-	private TelegramDto telegramObject(String chatId, String message, String photo) {
-		TelegramDto newObject = new TelegramDto(chatId, message, photo);
+	private TelegramDto telegramObject(String chatId, String message, String photo, List<String> inLineKeys) {
+		TelegramDto newObject = new TelegramDto(chatId, message, photo, inLineKeys);
 		return newObject;
 	}
 	
 	
-	public InlineKeyboardMarkup replyKeyboard() {
-		
-		List<String> optionsList = new ArrayList<String>();
-		optionsList.add("A");
-		optionsList.add("B");
-		optionsList.add("C");
-		optionsList.add("D");
-		optionsList.add("E");
+	public InlineKeyboardMarkup replyKeyboard(List<String> inLineKeys) {
 		
 		List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> firstRow = new ArrayList<>();
         List<InlineKeyboardButton> secondRow = new ArrayList<>();
         
-        for(String option:optionsList) {
-        	InlineKeyboardButton newButton = new InlineKeyboardButton();
-        	newButton.setText(option);
-        	newButton.setCallbackData(option);
-        	
-        	firstRow.add(newButton);
-        }
-        
-    	InlineKeyboardButton newButton = new InlineKeyboardButton();
-    	newButton.setText("Pular");
-    	newButton.setCallbackData("Pular");    	
-    	secondRow.add(newButton);
+		if(inLineKeys.size() < 6) {
+			List<String> optionsList = new ArrayList<String>();
+			optionsList.add("A");
+			optionsList.add("B");
+			optionsList.add("C");
+			optionsList.add("D");
+			optionsList.add("E");
+			
+	        for(String option:optionsList) {
+	        	InlineKeyboardButton newButton = new InlineKeyboardButton();
+	        	newButton.setText(option);
+	        	newButton.setCallbackData(option);        	
+	        	firstRow.add(newButton);
+	        }
+	        
+	    	InlineKeyboardButton newButton = new InlineKeyboardButton();
+	    	newButton.setText("Pular");
+	    	newButton.setCallbackData("Pular");    	
+	    	secondRow.add(newButton);
 
-        // Add buttons A, B, C, D, E, and "pular" to the row
-        // Add the row to the keyboard
-        keyboard.add(firstRow);
-        keyboard.add(secondRow);
+	        // Add buttons A, B, C, D, E, and "pular" to the row
+	        // Add the row to the keyboard
+	        keyboard.add(firstRow);
+	        keyboard.add(secondRow);
+	        
+		}
+		
+		else {
+	        for(String inLineKey:inLineKeys) {
+	        	InlineKeyboardButton newButton = new InlineKeyboardButton();
+	        	newButton.setText(inLineKey);
+	        	newButton.setCallbackData(inLineKey);  
+	        	List<InlineKeyboardButton> newRow = new ArrayList<>();
+	        	newRow.add(newButton);
+	        	keyboard.add(newRow);
+	        }
+		}
 
         // Create an InlineKeyboardMarkup object with the keyboard
         InlineKeyboardMarkup markupKeyboard = new InlineKeyboardMarkup();

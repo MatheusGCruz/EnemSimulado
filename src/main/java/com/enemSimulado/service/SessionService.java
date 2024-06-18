@@ -71,7 +71,7 @@ public class SessionService {
 		}
 		
 		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
-		TelegramDto addMessage = new TelegramDto(chatId, "Sessão Encerrada", null);
+		TelegramDto addMessage = new TelegramDto(chatId, "Sessão Encerrada", null, null);
 		returnList.add(addMessage);
 		return returnList;
 	}

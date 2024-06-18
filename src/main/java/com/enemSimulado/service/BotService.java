@@ -99,10 +99,12 @@ public class BotService extends TelegramLongPollingBot {
 	    public void sendTelegramMessages(List<TelegramDto> messageList) {
 	    	
 	    	for(TelegramDto message: messageList) {
-	    		setActualCommands(message.getChatId());
-	    		if(message.getText() != null) {sendMessage(message.getText(), message.getChatId());	}
-	    		if(message.getPhoto() != null) {sendImage(message.getPhoto(), message.getChatId());	}
+	    			setActualCommands(message.getChatId());
+	    			if(message.getText() != null && message.getInLineKeys() == null) {sendMessage(message.getText(), message.getChatId());	}
+	    			if(message.getPhoto() != null) {sendImage(message.getPhoto(), message.getChatId());	}
+	    			if(message.getText() != null && message.getInLineKeys() != null) {sendInLineKeys(message);	}
 	    	}
+	    	
 	    }
 
 	    public void sendMessage(String message, String chatId) {
@@ -120,12 +122,28 @@ public class BotService extends TelegramLongPollingBot {
 	        }
 	    }
 	    
+	    public void sendInLineKeys(TelegramDto message) {
+	    	
+	        SendMessage newMessage = new SendMessage();
+	        newMessage.setChatId(message.getChatId());
+	        newMessage.setText(message.getText());
+	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard(message.getInLineKeys()));
+	        
+	        try {
+	        	execute(newMessage);
+	            System.out.println("InLine sent successfully!");
+	      
+	        } catch (TelegramApiException e) {
+	            System.err.println("Error sending message: " + e.getMessage());
+	        }
+	    }
+	    
 	    public void sendInitialMessage() {
 	    			
 	        SendMessage newMessage = new SendMessage();
 	        newMessage.setChatId(baseChatId);
 	        newMessage.setText("Creating New Instance");
-	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard());
+	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard(new ArrayList()));
 	        try {
 	        	execute(newMessage);
 	            System.out.println("Message sent successfully!");
