@@ -18,12 +18,24 @@ public interface AnswerRepository extends JpaRepository<AnswerDto, Long>{
 	@Query("SELECT COUNT(*) FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1")
     Long getQuantityAnswered(@Param("chatId") String chatId);
 	
-	@Query("SELECT DATEDIFF(SECOND, MIN(createdAt),MAX(createdAt)) FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1")
+	@Query("SELECT COUNT(*) FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1 AND answerId = 0")
+    Long getQuantityNotAnswered(@Param("chatId") String chatId);
+	
+	@Query("SELECT DATEDIFF(SECOND, MIN(answeredAt),MAX(createdAt)) FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1")
     Integer getTimeElapsed(@Param("chatId") String chatId);
 	
 	@Transactional
 	@Modifying(clearAutomatically = true)
 	@Query("UPDATE AnswerDto SET currentlyActive = 0 WHERE chatId = :chatId AND currentlyActive = 1")
     void inactivateAnswerSessions(@Param("chatId") String chatId);
+	
+	@Transactional
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE AnswerDto SET messageId = :messageId WHERE chatId = :chatId AND currentlyActive = 1 AND messageId is null")
+    void updateAnswer(@Param("chatId") String chatId, @Param("chatId") String messageId);
 
+	//@Query("SELECT * FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1 AND messageId is null")
+    //AnswerDto getNotAnswered(@Param("chatId") String chatId);
+
+	AnswerDto getByChatIdAndMessageIdAndCurrentlyActive(String chatId, String messageId, int i);
 }

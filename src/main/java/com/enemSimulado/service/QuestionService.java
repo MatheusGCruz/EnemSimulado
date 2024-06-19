@@ -169,16 +169,21 @@ public class QuestionService {
 		List<QuestionDto> questionList = new ArrayList<QuestionDto>();
 		
 		Long quantityAnswered = answerRepository.getQuantityAnswered(chatId);
+		Long quantityNotAnswered = answerRepository.getQuantityNotAnswered(chatId);
+		
 		Integer selectedQuantity = 1;
 		if(activeSession.getQuantidadeTopico() != null) {
 			selectedQuantity = activeSession.getQuantidadeTopico();
 		}
 		Integer matrix = (quantityAnswered.intValue()/selectedQuantity)+1;
 		
-		if(matrix >= 5) {
-			String timeExpend = textAuxiliary.getPeriodFromSeconds(answerRepository.getTimeElapsed(chatId));
-			answerRepository.inactivateAnswerSessions(chatId);
-			return textAuxiliary.returnSimpleMessage("Simulado encerrado. Seu tempo gasto foi de "+timeExpend, chatId);
+		if(matrix >= 5 ) {
+			if(quantityNotAnswered == 0) {
+				String timeExpend = textAuxiliary.getPeriodFromSeconds(answerRepository.getTimeElapsed(chatId));
+				answerRepository.inactivateAnswerSessions(chatId);
+				return textAuxiliary.returnSimpleMessage("Simulado encerrado. Seu tempo gasto foi de "+timeExpend, chatId);
+			}
+			return textAuxiliary.returnSimpleMessage("Existem "+quantityNotAnswered+" questões ainda não respondidas", chatId);
 		}
 		
 		List<Integer> possibleQuestions = questionRepository.getAllValidQuestionsId(chatId, matrix);

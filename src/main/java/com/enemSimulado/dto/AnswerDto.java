@@ -41,4 +41,7 @@ public class AnswerDto {
 	@Column
 	private LocalDateTime answeredAt;
 	
+	@Column
+	private String messageId;
+	
 }

@@ -150,11 +150,11 @@ public class TextAuxiliary {
 		for(QuestionDto question:questionList) {
 			returnList.add(questionHeader(question, chatId));
 			
-			if(question.getImagem() != null) { returnList.add(telegramObject(chatId, null, question.getImagem(), null)); }
-			if(question.getQuestao() != null) { returnList.add(telegramObject(chatId, question.getQuestao(), null, null)); }
-			if(question.getImagemAlternativas() != null) { returnList.add(telegramObject(chatId, null, question.getImagemAlternativas(), null)); }
+			List<String> footer = new ArrayList<String>();
 			
-			returnList.add(questionFooter(question, chatId));			
+			if(question.getImagem() != null) { returnList.add(telegramObject(chatId, null, question.getImagem(), null)); }
+			if(question.getImagemAlternativas() != null) { returnList.add(telegramObject(chatId, null, question.getImagemAlternativas(), null)); }			
+			if(question.getQuestao() != null) { returnList.add(telegramObject(chatId, question.getQuestao(), null, footer)); }				
 			
 		}
 		
@@ -176,20 +176,6 @@ public class TextAuxiliary {
 		TelegramDto newObject = new TelegramDto(chatId, header.toString(), null, null);
 		return newObject;
 	}
-	
-	private TelegramDto questionFooter(QuestionDto question, String chatId) {
-		List<String> footer = new ArrayList<String>();
-		footer.add((question.getAlternativaA()!=null)?question.getAlternativaA():"Alternativa A");
-		footer.add((question.getAlternativaB()!=null)?question.getAlternativaB():"Alternativa B");
-		footer.add((question.getAlternativaC()!=null)?question.getAlternativaC():"Alternativa C");
-		footer.add((question.getAlternativaD()!=null)?question.getAlternativaD():"Alternativa D");
-		footer.add((question.getAlternativaE()!=null)?question.getAlternativaE():"Alternativa E");
-		footer.add("Pular");		
-		
-		TelegramDto newObject = new TelegramDto(chatId, "Alternativas:", null, footer);
-		return newObject;
-	}
-	
 	
 	private TelegramDto telegramObject(String chatId, String message, String photo, List<String> inLineKeys) {
 		TelegramDto newObject = new TelegramDto(chatId, message, photo, inLineKeys);
@@ -218,10 +204,15 @@ public class TextAuxiliary {
 	        	firstRow.add(newButton);
 	        }
 	        
-	    	InlineKeyboardButton newButton = new InlineKeyboardButton();
-	    	newButton.setText("Pular");
-	    	newButton.setCallbackData("Pular");    	
-	    	secondRow.add(newButton);
+	    	InlineKeyboardButton pularButton = new InlineKeyboardButton();
+	    	pularButton.setText("Pular");
+	    	pularButton.setCallbackData("Pular");    	
+	    	
+	    	InlineKeyboardButton encerrarButton = new InlineKeyboardButton();
+	    	encerrarButton.setText("Encerrar");
+	    	encerrarButton.setCallbackData("Encerrar");  
+	    	secondRow.add(pularButton);
+	    	secondRow.add(encerrarButton);
 
 	        // Add buttons A, B, C, D, E, and "pular" to the row
 	        // Add the row to the keyboard
@@ -246,6 +237,79 @@ public class TextAuxiliary {
         markupKeyboard.setKeyboard(keyboard);
         
         return markupKeyboard;
+	}
+	
+public InlineKeyboardMarkup replyKeyboardAnswered(Integer correct, Integer answer, Boolean hideAnswer) {
+		
+		List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> firstRow = new ArrayList<>();
+        List<InlineKeyboardButton> secondRow = new ArrayList<>();
+        
+			List<String> optionsList = new ArrayList<String>();
+			optionsList.add("A");
+			optionsList.add("B");
+			optionsList.add("C");
+			optionsList.add("D");
+			optionsList.add("E");
+			
+	        for(String option:optionsList) {
+	        	InlineKeyboardButton newButton = new InlineKeyboardButton();
+	        	newButton.setText(option);
+	        	newButton.setCallbackData(option);        	
+	        	firstRow.add(newButton);
+	        }
+	        
+	        for(int i =1; i<firstRow.size()+1; i++) {
+	        	String buttonText = firstRow.get(i-1).getText();
+	        	if(i == answer && !hideAnswer) {
+	        		firstRow.get(i-1).setText("🟡 "+buttonText);
+	        	}
+	        	
+	        	if(i == answer && hideAnswer) {
+	        		firstRow.get(i-1).setText("🔴 "+buttonText);
+	        	}
+	        	
+	        	if(i == correct && hideAnswer) {
+	        		firstRow.get(i-1).setText("🟢 "+buttonText);
+	        	}
+	        }
+	        
+	    	InlineKeyboardButton pularButton = new InlineKeyboardButton();
+	    	pularButton.setText("Pular");
+	    	pularButton.setCallbackData("Pular");    	
+	    	
+	    	InlineKeyboardButton encerrarButton = new InlineKeyboardButton();
+	    	encerrarButton.setText("Encerrar");
+	    	encerrarButton.setCallbackData("Encerrar");  
+	    	secondRow.add(pularButton);
+	    	secondRow.add(encerrarButton);
+
+	        // Add buttons A, B, C, D, E, and "pular" to the row
+	        // Add the row to the keyboard
+	        keyboard.add(firstRow);
+	        keyboard.add(secondRow);		
+		
+
+		// Create an InlineKeyboardMarkup object with the keyboard
+        InlineKeyboardMarkup markupKeyboard = new InlineKeyboardMarkup();
+        markupKeyboard.setKeyboard(keyboard);
+        
+        return markupKeyboard;
+	}
+	
+	public Integer getAuxiliaryResponse(String answer) {
+		Integer response = 0;
+		switch(answer){
+			case ("A"): return 1;
+			case ("B"): return 2;
+			case ("C"): return 3;
+			case ("D"): return 4;
+			case ("E"): return 5;
+			case ("Pular"): return 10;
+			case ("Encerrar"): return 99;
+		}
+		
+		return response;
 	}
 	
 }

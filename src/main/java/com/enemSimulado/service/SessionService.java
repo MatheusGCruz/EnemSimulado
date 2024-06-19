@@ -17,14 +17,11 @@ import com.enemSimulado.repository.StageRepository;
 @Service
 public class SessionService {
 	
-	@Autowired
-	SessionRepository sessionRepository;
+	@Autowired	AnswerService 		answerService;
+	@Autowired 	SessionRepository 	sessionRepository;
+	@Autowired 	StageRepository 	stageRepository;
+	@Autowired 	TextAuxiliary 		textAuxiliary;
 	
-	@Autowired
-	StageRepository stageRepository;
-	
-	@Autowired
-	TextAuxiliary textAuxiliary;
 	
 	public List<TelegramDto> createNewSession(String chatId, Integer stage) {
     	StageDto newStage = stageRepository.findFirstByStage(stage);
@@ -69,6 +66,8 @@ public class SessionService {
 			session.setIsActive(0);
 			sessionRepository.save(session);
 		}
+		
+		answerService.inactivateSessions(chatId);
 		
 		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
 		TelegramDto addMessage = new TelegramDto(chatId, "Sessão Encerrada", null, null);

@@ -62,7 +62,7 @@ public class FluxService {
 	        case "/contato"					: return getMessage(command, chatId);
 	        case "/nova_questao"			: return sessionService.createNewSession(chatId, 90);
 	        case "/nova_questao_com_imagem"	: return sessionService.createNewSession(chatId, 91);
-	        case "/lote_questao"			: return sessionService.createNewSession(chatId, 92);
+	        case "/lote_questao"			: return sessionService.createNewSession(chatId, 92);	        
 			}
 		}
 		
