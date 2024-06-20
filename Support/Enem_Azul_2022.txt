@@ -599,7 +599,6 @@ E - Escolaridade e fecundidade.
 
 
 
-INSERT INTO [dbo].[question_dto]([ano],[azul],[questao],[linguagem],[matriz]) VALUES
 
 (2022,  71,'O princípio básico do Estado de direito é o da Eliminação do arbítrio no exercício dos poderes públicos, Com a consequente garantia de direitos dos indivíduos perante esses poderes. Estado de direito significa que nenhum indivíduo, presidente ou cidadão comum está Acima da lei. Os governos democráticos exercem a Autoridade por meio da lei e estão eles próprios sujeitos Aos constrangimentos impostos pela lei. CANOTILHO, J. J. G. Estado de direito. Lisboa: Gradiva, 1999 (adaptado). Nas sociedades contemporâneas, consiste em violação Do princípio básico enunciado no texto:
 
