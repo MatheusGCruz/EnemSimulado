@@ -47,4 +47,8 @@ public class AnswerService {
 	public void inactivateSessions(String chatId) {
 		answerRepository.inactivateAnswerSessions(chatId);
 	}
+
+	public AnswerDto getAnswer(String chatId, Integer messageId) {
+		return answerRepository.getByChatIdAndMessageIdAndCurrentlyActive(chatId, messageId.toString(), 1);
+	}
 }

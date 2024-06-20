@@ -199,7 +199,7 @@ public class TextAuxiliary {
 			
 	        for(String option:optionsList) {
 	        	InlineKeyboardButton newButton = new InlineKeyboardButton();
-	        	newButton.setText(option);
+	        	newButton.setText("⚪️"+option);
 	        	newButton.setCallbackData(option);        	
 	        	firstRow.add(newButton);
 	        }
@@ -254,22 +254,26 @@ public InlineKeyboardMarkup replyKeyboardAnswered(Integer correct, Integer answe
 			
 	        for(String option:optionsList) {
 	        	InlineKeyboardButton newButton = new InlineKeyboardButton();
-	        	newButton.setText(option);
+	        	newButton.setText("⚪️"+option);
 	        	newButton.setCallbackData(option);        	
 	        	firstRow.add(newButton);
 	        }
 	        
 	        for(int i =1; i<firstRow.size()+1; i++) {
-	        	String buttonText = firstRow.get(i-1).getText();
-	        	if(i == answer && !hideAnswer) {
+	        	String buttonText = firstRow.get(i-1).getCallbackData();
+	        	if(i == answer && hideAnswer) {
 	        		firstRow.get(i-1).setText("🟡 "+buttonText);
 	        	}
 	        	
-	        	if(i == answer && hideAnswer) {
+	        	if(i == answer && !hideAnswer) {
 	        		firstRow.get(i-1).setText("🔴 "+buttonText);
 	        	}
 	        	
-	        	if(i == correct && hideAnswer) {
+	        	if(i == correct && !hideAnswer) {
+	        		firstRow.get(i-1).setText("🟢 "+buttonText);
+	        	}
+	        	
+	        	if(correct == 0 && !hideAnswer) {
 	        		firstRow.get(i-1).setText("🟢 "+buttonText);
 	        	}
 	        }

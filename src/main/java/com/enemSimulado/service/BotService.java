@@ -23,6 +23,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import com.enemSimulado.auxiliary.TextAuxiliary;
 import com.enemSimulado.dto.AnswerDto;
+import com.enemSimulado.dto.SessionDto;
 import com.enemSimulado.dto.TelegramDto;
 
 @Service
@@ -155,13 +156,29 @@ public class BotService extends TelegramLongPollingBot {
 	    }
 	    
 	    public void editMessage(String message, String chatId, Integer messageId, Integer selectedAnswer) {
+	    	
+	    	SessionDto activeSession = sessionService.findActiveSession(chatId);
+	    	AnswerDto answer = answerService.getAnswer(chatId, messageId);
+	    	
 	    	List<String> replyList = new ArrayList<String>();
+	    	
+	    	Boolean hideAnswer = true;
+	    	Integer correctAnswer = 0;
+	    	if(activeSession != null && activeSession.getOcultarCorreta() == 0) {
+	    		hideAnswer = false;
+	    	}
+	    	if(answer != null && answer.getCorrectAnswerId() != null) {
+	    		correctAnswer = answer.getCorrectAnswerId();
+	    	}
+	    	
 	    	
             EditMessageText newMessage = new EditMessageText();
             newMessage.setChatId(chatId);
             newMessage.setMessageId(messageId);
             newMessage.setText(message);
-            newMessage.setReplyMarkup(textAuxiliary.replyKeyboardAnswered(1, selectedAnswer, true));
+            
+            
+            newMessage.setReplyMarkup(textAuxiliary.replyKeyboardAnswered(correctAnswer, selectedAnswer, hideAnswer));
             
             try {
                 execute(newMessage); 
