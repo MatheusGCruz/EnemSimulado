@@ -45,8 +45,8 @@ public class FluxService {
 					case 4:	return questionService.getQuestionList(command, chatId, activeSession.getStage(), fileId);	// Pesquisa Questoes
 					case 5: return sessionService.configSession(activeSession, command, chatId);						// Config sessao
 					case 6: return simuladoService.getRandomQuestion(chatId, activeSession);							// Simulado
-					case 8:	return contactService.insertContact(command, chatId, activeSession.getStage());
-					case 9: return questionService.setQuestion(command, chatId, activeSession.getStage(), fileId);		//Registros
+					case 8:	return contactService.insertContact(command, chatId, activeSession.getStage());				// Contatos
+					case 9: return questionService.setQuestion(command, chatId, activeSession.getStage(), fileId);		// Registros
 				}
 			}
 			

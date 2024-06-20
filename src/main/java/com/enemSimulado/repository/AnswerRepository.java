@@ -1,6 +1,7 @@
 package com.enemSimulado.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -38,4 +39,19 @@ public interface AnswerRepository extends JpaRepository<AnswerDto, Long>{
     //AnswerDto getNotAnswered(@Param("chatId") String chatId);
 
 	AnswerDto getByChatIdAndMessageIdAndCurrentlyActive(String chatId, String messageId, int i);
+	List<AnswerDto> getByChatIdAndCurrentlyActive(String chatId, int i);
+
+	@Query("SELECT COUNT(*) FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1 AND matrix = :matrix AND answerId = correctAnswerId")
+	Integer getCorrectAnswersByMatrix(String chatId, int matrix);
+	
+	@Query("SELECT COUNT(*) FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1 AND matrix = :matrix")
+	Integer getAnswersByMatrix(String chatId, int matrix);
+	
+	@Query("SELECT COUNT(*) FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1 AND answerId = correctAnswerId")
+	Integer getAllCorrectAnswers(String chatId);
+	
+	@Query("SELECT COUNT(*) FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1")
+	Integer getAllAnswers(String chatId);
+
+
 }

@@ -12,6 +12,6 @@ import com.enemSimulado.dto.SessionDto;
 public interface SessionRepository extends JpaRepository<SessionDto, Long> {
 
 	List<SessionDto> findBytelegramChatId(String chatId);
-
+	List<SessionDto> findBytelegramChatIdAndIsActive(String chatId, Long isActive);
 	List<SessionDto> findAllBytelegramChatId(String chatId);
 }

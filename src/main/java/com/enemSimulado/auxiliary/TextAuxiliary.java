@@ -151,6 +151,7 @@ public class TextAuxiliary {
 			returnList.add(questionHeader(question, chatId));
 			
 			List<String> footer = new ArrayList<String>();
+			footer.add("Question");
 			
 			if(question.getImagem() != null) { returnList.add(telegramObject(chatId, null, question.getImagem(), null)); }
 			if(question.getImagemAlternativas() != null) { returnList.add(telegramObject(chatId, null, question.getImagemAlternativas(), null)); }			
@@ -183,13 +184,26 @@ public class TextAuxiliary {
 	}
 	
 	
-	public InlineKeyboardMarkup replyKeyboard(List<String> inLineKeys) {
+	public InlineKeyboardMarkup replyKeyboard(String type) {
 		
 		List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> firstRow = new ArrayList<>();
         List<InlineKeyboardButton> secondRow = new ArrayList<>();
         
-		if(inLineKeys.size() < 6) {
+    	InlineKeyboardButton pularButton = new InlineKeyboardButton();
+    	pularButton.setText("Pular");
+    	pularButton.setCallbackData("Pular");    	
+    	
+    	InlineKeyboardButton encerrarButton = new InlineKeyboardButton();
+    	encerrarButton.setText("Encerrar");
+    	encerrarButton.setCallbackData("Encerrar");  
+    	
+    	InlineKeyboardButton reportButton = new InlineKeyboardButton();
+    	reportButton.setText("Relatorio");
+    	reportButton.setCallbackData("Relatorio"); 
+        
+        switch(type) {
+        case "Question": 
 			List<String> optionsList = new ArrayList<String>();
 			optionsList.add("A");
 			optionsList.add("B");
@@ -204,33 +218,30 @@ public class TextAuxiliary {
 	        	firstRow.add(newButton);
 	        }
 	        
-	    	InlineKeyboardButton pularButton = new InlineKeyboardButton();
-	    	pularButton.setText("Pular");
-	    	pularButton.setCallbackData("Pular");    	
-	    	
-	    	InlineKeyboardButton encerrarButton = new InlineKeyboardButton();
-	    	encerrarButton.setText("Encerrar");
-	    	encerrarButton.setCallbackData("Encerrar");  
 	    	secondRow.add(pularButton);
 	    	secondRow.add(encerrarButton);
-
-	        // Add buttons A, B, C, D, E, and "pular" to the row
-	        // Add the row to the keyboard
 	        keyboard.add(firstRow);
 	        keyboard.add(secondRow);
+	        break;
 	        
-		}
 		
-		else {
-	        for(String inLineKey:inLineKeys) {
-	        	InlineKeyboardButton newButton = new InlineKeyboardButton();
-	        	newButton.setText(inLineKey);
-	        	newButton.setCallbackData(inLineKey);  
-	        	List<InlineKeyboardButton> newRow = new ArrayList<>();
-	        	newRow.add(newButton);
-	        	keyboard.add(newRow);
-	        }
-		}
+		
+		case "Menu": 
+
+	    	firstRow.add(pularButton);
+	    	firstRow.add(encerrarButton);
+	        keyboard.add(firstRow);
+	        break;
+
+		
+		case "Report": 
+	    	firstRow.add(reportButton);
+	    	firstRow.add(encerrarButton);
+	        keyboard.add(firstRow);
+	        break;
+
+		
+        }
 
         // Create an InlineKeyboardMarkup object with the keyboard
         InlineKeyboardMarkup markupKeyboard = new InlineKeyboardMarkup();
@@ -315,5 +326,17 @@ public InlineKeyboardMarkup replyKeyboardAnswered(Integer correct, Integer answe
 		
 		return response;
 	}
+	
+	public String getResults(List<Integer> correctAnswers, List<Integer> totalAnswers) {
+		StringBuilder returnString = new StringBuilder();
+		returnString.append("Matrix 1 :" +correctAnswers.get(1).toString() + "/" +totalAnswers.get(1).toString()).append(System.lineSeparator());
+		returnString.append("Matrix 2 :" +correctAnswers.get(2).toString() + "/" +totalAnswers.get(2).toString()).append(System.lineSeparator());
+		returnString.append("Matrix 3 :" +correctAnswers.get(3).toString() + "/" +totalAnswers.get(3).toString()).append(System.lineSeparator());
+		returnString.append("Matrix 4 :" +correctAnswers.get(4).toString() + "/" +totalAnswers.get(4).toString()).append(System.lineSeparator());
+		returnString.append("Total :" +correctAnswers.get(0).toString() + "/" +totalAnswers.get(0).toString()).append(System.lineSeparator());	
+		
+		return returnString.toString();
+	}
+	
 	
 }

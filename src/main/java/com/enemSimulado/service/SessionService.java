@@ -89,6 +89,10 @@ public class SessionService {
 		return activeSession;
 	}
 	
+	public SessionDto getActiveSessionByChatId(String chatId) {
+		return sessionRepository.findBytelegramChatIdAndIsActive(chatId, (long)1).get(0);
+	}
+	
 	public SessionDto getActiveSession(String chatId, StageDto currentStage) {
 		
 		List<SessionDto> userSessions = sessionRepository.findBytelegramChatId(chatId);

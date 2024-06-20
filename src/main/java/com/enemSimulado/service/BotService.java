@@ -38,6 +38,7 @@ public class BotService extends TelegramLongPollingBot {
 	    @Autowired    	StageService 	stageService;
 	    @Autowired    	AnswerService 	answerService;
 	    @Autowired    	SessionService 	sessionService;
+	    @Autowired    	QuestionService questionService;
 	    @Autowired		TextAuxiliary	textAuxiliary;
 	        
 	    public String sendNewMessage(BotService bot) {     	
@@ -87,7 +88,7 @@ public class BotService extends TelegramLongPollingBot {
 					System.err.println("Error sending message: " + ex.getMessage());
 				}
 				
-				sendTelegramMessages(fluxService.getNextMessage(receivedMessage, chatId, fileId)); 
+				sendTelegramMessages(fluxService.getNextMessage(receivedMessage, chatId, fileId),"Question"); 
 			}
 			
 			// Edited Message
@@ -103,6 +104,10 @@ public class BotService extends TelegramLongPollingBot {
 				String chatId = update.getCallbackQuery().getFrom().getId().toString();
 				Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
 				String command = "None";
+				
+				SessionDto activeSession = sessionService.getActiveSessionByChatId(chatId);
+				
+
 				
 				switch(selectedAnswer){
 					case	1:
@@ -121,7 +126,13 @@ public class BotService extends TelegramLongPollingBot {
 									break;									
 				}
 				
-				sendTelegramMessages(fluxService.getNextMessage(command, chatId, null));
+				if(activeSession.getStage() == 69) {
+					updateAllAnswers(chatId, activeSession);
+					sendTelegramMessages(questionService.endSim(chatId, activeSession), "Report");
+				}
+				else {				
+					sendTelegramMessages(fluxService.getNextMessage(command, chatId, null), "Question");
+				}
 				
 			}
  	
@@ -129,13 +140,13 @@ public class BotService extends TelegramLongPollingBot {
 	    }
 	    
 	    
-	    public void sendTelegramMessages(List<TelegramDto> messageList) {
+	    public void sendTelegramMessages(List<TelegramDto> messageList, String type) {
 	    	
 	    	for(TelegramDto message: messageList) {
 	    			setActualCommands(message.getChatId());
 	    			if(message.getText() != null && message.getInLineKeys() == null) {sendMessage(message.getText(), message.getChatId());	}
 	    			if(message.getPhoto() != null) {sendImage(message.getPhoto(), message.getChatId());	}
-	    			if(message.getText() != null && message.getInLineKeys() != null) {sendInLineKeys(message);	}
+	    			if(message.getText() != null && message.getInLineKeys() != null) {sendInLineKeys(message, type);	}
 	    	}
 	    	
 	    }
@@ -187,12 +198,12 @@ public class BotService extends TelegramLongPollingBot {
             }
 	    }
 	    
-	    public Message sendInLineKeys(TelegramDto message) {
+	    public Message sendInLineKeys(TelegramDto message, String type) {
 	    	
 	        SendMessage newMessage = new SendMessage();
 	        newMessage.setChatId(message.getChatId());
 	        newMessage.setText(message.getText());
-	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard(message.getInLineKeys()));
+	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard(type));
 	        
 	        Message returnMessage = new Message();
 	        
@@ -214,7 +225,7 @@ public class BotService extends TelegramLongPollingBot {
 	        SendMessage newMessage = new SendMessage();
 	        newMessage.setChatId(baseChatId);
 	        newMessage.setText("Creating New Instance");
-	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard(new ArrayList()));
+	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard("Menu"));
 	        try {
 	        	execute(newMessage);
 	            System.out.println("Message sent successfully!");
@@ -255,6 +266,15 @@ public class BotService extends TelegramLongPollingBot {
 	    @Override
 	    public String getBotToken() {
 	        return botToken;
+	    }
+	    
+	    public void updateAllAnswers(String chatId, SessionDto activeSession) {
+	    	List<AnswerDto> answers = answerService.getAllSessionAnswers(chatId);
+	    	for(AnswerDto answer: answers) {
+	    		String message = questionService.getQuestionById(answer.getQuestionId()).getQuestao();
+	    		editMessage("Avaliada: "+message, answer.getChatId(), Integer.parseInt(answer.getMessageId()), answer.getAnswerId());
+	    	}    	
+	    	
 	    }
 	    
 	

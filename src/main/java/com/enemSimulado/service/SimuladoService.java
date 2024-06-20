@@ -24,6 +24,9 @@ public class SimuladoService {
 	
 	
 	public List<TelegramDto> getRandomQuestion(String chatId, SessionDto activeSession) {
+		if(activeSession.getStage() == 69) {
+			return questionService.endSim(chatId, activeSession);
+		}
 		return questionService.getRandomQuestion(chatId, activeSession);
 	} 
 	

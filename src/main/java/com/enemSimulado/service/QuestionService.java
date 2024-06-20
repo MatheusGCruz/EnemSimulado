@@ -29,8 +29,7 @@ public class QuestionService {
 	@Autowired
 	StageRepository stageRepository;
 		
-	@Autowired
-	AnswerRepository answerRepository;
+	@Autowired	AnswerService answerService;
 	
 	@Autowired
 	SessionService sessionService;
@@ -140,8 +139,7 @@ public class QuestionService {
 			questionList = questionRepository.findByQuestaoContaining(texto);
 		}catch(Exception ex) {
 			System.err.println("Error sending message: " +ex.getMessage());
-		}
-		
+		}		
 		sessionService.encerrarSessoes(chatId);
 		return textAuxiliary.question2Telegram(questionList, chatId);
 
@@ -167,9 +165,10 @@ public class QuestionService {
 	
 	public List<TelegramDto> getRandomQuestion(String chatId, SessionDto activeSession) {
 		List<QuestionDto> questionList = new ArrayList<QuestionDto>();
+		List<TelegramDto> returnMessages = new ArrayList<TelegramDto>();
 		
-		Long quantityAnswered = answerRepository.getQuantityAnswered(chatId);
-		Long quantityNotAnswered = answerRepository.getQuantityNotAnswered(chatId);
+		Long quantityAnswered = answerService.getQuantityAnswered(chatId);
+		Long quantityNotAnswered = answerService.getQuantityNotAnswered(chatId);
 		
 		Integer selectedQuantity = 1;
 		if(activeSession.getQuantidadeTopico() != null) {
@@ -179,9 +178,11 @@ public class QuestionService {
 		
 		if(matrix >= 5 ) {
 			if(quantityNotAnswered == 0) {
-				String timeExpend = textAuxiliary.getPeriodFromSeconds(answerRepository.getTimeElapsed(chatId));
-				answerRepository.inactivateAnswerSessions(chatId);
-				return textAuxiliary.returnSimpleMessage("Simulado encerrado. Seu tempo gasto foi de "+timeExpend, chatId);
+				activeSession.setNextStage(69);
+				activeSession.setStage(69);
+				activeSession.setOcultarCorreta(0);
+				sessionService.saveSession(activeSession);
+				return textAuxiliary.returnSimpleMessage("Simulado encerrado. Digite OK para ver os resultados.", chatId);
 			}
 			return textAuxiliary.returnSimpleMessage("Existem "+quantityNotAnswered+" questões ainda não respondidas", chatId);
 		}
@@ -210,7 +211,32 @@ public class QuestionService {
 		newAnswer.setCreatedAt(LocalDateTime.now());
 		newAnswer.setCorrectAnswerId(question.getAlternativaCorreta());
 		
-		answerRepository.save(newAnswer);
+		answerService.save(newAnswer);
+	}
+	
+	public String closeSessionAndCalculate(String chatId) {
+		
+		
+		List<Integer> correctAnswers 	= answerService.getCorrectAnswerNumbers(chatId);
+		List<Integer> answers 			= answerService.getAnswerNumbers(chatId);
+		
+		
+		
+		
+		return textAuxiliary.getResults(correctAnswers, answers);
+	}
+
+	public List<TelegramDto> endSim(String chatId, SessionDto activeSession) {
+		List<TelegramDto> returnMessages = new ArrayList<TelegramDto>();
+		String timeExpend = textAuxiliary.getPeriodFromSeconds(answerService.getTimeElapsed(chatId));
+		returnMessages.addAll(textAuxiliary.returnSimpleMessage("Simulado encerrado. Seu tempo gasto foi de "+timeExpend, chatId));
+		returnMessages.addAll(textAuxiliary.returnSimpleMessage(closeSessionAndCalculate(chatId), chatId));
+		answerService.inactivateAnswerSessions(chatId);
+		return returnMessages;
+	}
+
+	public QuestionDto getQuestionById(Integer questionId) {
+		return questionRepository.findById((long)questionId).get();
 	}
 	
 
