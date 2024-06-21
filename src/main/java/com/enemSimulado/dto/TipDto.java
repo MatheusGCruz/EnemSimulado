@@ -11,15 +11,12 @@ import lombok.Data;
 
 @Data
 @Entity
-public class ContactDto {
-	
-	public ContactDto(String chatId, String contactMessage, Integer contactType,Integer contactStatus) {
-		this.telegramChatId = chatId;
-		this.contactType = contactType;
-		this.contactMessage = contactMessage;	
-		this.contactStatus = contactStatus;
+public class TipDto {
+	public TipDto(String telegramChatId, String tipMessage, Integer questionId) {
+		this.telegramChatId = telegramChatId;
+		this.tipMessage = tipMessage;
+		this.questionId = questionId;	
 	}
-	
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,22 +28,16 @@ public class ContactDto {
 	@Column
 	private String telegramChatId;
 	
-	@Column
-	private Integer contactType;
-	
 	@Column 
-	private String contactMessage;
+	private String tipMessage;
 	
 	@Column
-	private String contactResponse;
+	private Integer questionId; 	
 	
 	@Column
-	private Integer contactStatus;
+	private Integer upVotes;
 	
 	@Column
-	private LocalDateTime respondedAt;	
+	private Integer downVotes;	
 	
 }
-
-
-
