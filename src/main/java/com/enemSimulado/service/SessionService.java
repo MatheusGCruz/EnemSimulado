@@ -17,15 +17,11 @@ import com.enemSimulado.repository.StageRepository;
 @Service
 public class SessionService {
 	
+	@Autowired	AnswerService 		answerService;
+	@Autowired 	SessionRepository 	sessionRepository;
+	@Autowired 	StageRepository 	stageRepository;
+	@Autowired 	TextAuxiliary 		textAuxiliary;
 	
-	@Autowired
-	SessionRepository sessionRepository;
-	
-	@Autowired
-	StageRepository stageRepository;
-	
-	@Autowired
-	TextAuxiliary textAuxiliary;
 	
 	public List<TelegramDto> createNewSession(String chatId, Integer stage) {
     	StageDto newStage = stageRepository.findFirstByStage(stage);
@@ -33,15 +29,31 @@ public class SessionService {
     	return configSession(activeSession, "", chatId);
 	}
 	
+	public List<TelegramDto> createNewFastSim(String chatId, Integer stage) {
+    	StageDto newStage = stageRepository.findFirstByStage(stage);
+    	SessionDto activeSession = getActiveSession(chatId, newStage); 
+    	activeSession.setAno(0);
+    	activeSession.setLinguagem(1);
+    	activeSession.setMatriz(0);
+    	activeSession.setQuantidadeTopico(5);
+    	activeSession.setOcultarCorreta(1);
+    	return configSession(activeSession, "", chatId);
+	}
+	
 	public List<TelegramDto> configSession(SessionDto activeSession, String command, String chatId) {		
 		
+		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
+		List<TelegramDto> messageList = new ArrayList<TelegramDto>();
 		switch(activeSession.getStage()) {	
 			case 501:	
 				activeSession.setAno(textAuxiliary.string2Int(command));
 				break;
 							
 		}
-		return textAuxiliary.returnSimpleMessage(saveSession(activeSession), chatId);	
+		returnList.addAll(textAuxiliary.returnSimpleMessage(saveSession(activeSession), chatId));	
+		returnList.addAll(messageList);
+		
+		return returnList;
 	}
 	
 	public List<TelegramDto> encerrarSessoes(String chatId) {		
@@ -55,8 +67,10 @@ public class SessionService {
 			sessionRepository.save(session);
 		}
 		
+		answerService.inactivateSessions(chatId);
+		
 		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
-		TelegramDto addMessage = new TelegramDto(chatId, "Sessão Encerrada", null);
+		TelegramDto addMessage = new TelegramDto(chatId, "Sessão Encerrada", null, null);
 		returnList.add(addMessage);
 		return returnList;
 	}
@@ -73,6 +87,10 @@ public class SessionService {
 		}
 		
 		return activeSession;
+	}
+	
+	public SessionDto getActiveSessionByChatId(String chatId) {
+		return sessionRepository.findBytelegramChatIdAndIsActive(chatId, (long)1).get(0);
 	}
 	
 	public SessionDto getActiveSession(String chatId, StageDto currentStage) {

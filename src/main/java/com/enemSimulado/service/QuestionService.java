@@ -3,16 +3,20 @@ package com.enemSimulado.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.enemSimulado.auxiliary.TextAuxiliary;
+import com.enemSimulado.dto.AnswerDto;
 import com.enemSimulado.dto.MatrixDto;
 import com.enemSimulado.dto.QuestionDto;
 import com.enemSimulado.dto.SessionDto;
 import com.enemSimulado.dto.StageDto;
 import com.enemSimulado.dto.TelegramDto;
+import com.enemSimulado.repository.AnswerRepository;
 import com.enemSimulado.repository.QuestionRepository;
 import com.enemSimulado.repository.StageRepository;
 
@@ -25,6 +29,8 @@ public class QuestionService {
 	@Autowired
 	StageRepository stageRepository;
 		
+	@Autowired	AnswerService answerService;
+	
 	@Autowired
 	SessionService sessionService;
 	
@@ -133,8 +139,7 @@ public class QuestionService {
 			questionList = questionRepository.findByQuestaoContaining(texto);
 		}catch(Exception ex) {
 			System.err.println("Error sending message: " +ex.getMessage());
-		}
-		
+		}		
 		sessionService.encerrarSessoes(chatId);
 		return textAuxiliary.question2Telegram(questionList, chatId);
 
@@ -158,11 +163,81 @@ public class QuestionService {
 		return textAuxiliary.returnSimpleMessage("Questão não encontrada", chatId);
 	}
 	
-	public List<QuestionDto> getRandomQuestion(String chatId, SessionDto activeSession) {
+	public List<TelegramDto> getRandomQuestion(String chatId, SessionDto activeSession) {
 		List<QuestionDto> questionList = new ArrayList<QuestionDto>();
-		return questionList;
+		List<TelegramDto> returnMessages = new ArrayList<TelegramDto>();
+		
+		Long quantityAnswered = answerService.getQuantityAnswered(chatId);
+		Long quantityNotAnswered = answerService.getQuantityNotAnswered(chatId);
+		
+		Integer selectedQuantity = 1;
+		if(activeSession.getQuantidadeTopico() != null) {
+			selectedQuantity = activeSession.getQuantidadeTopico();
+		}
+		Integer matrix = (quantityAnswered.intValue()/selectedQuantity)+1;
+		
+		if(matrix >= 5 ) {
+			if(quantityNotAnswered == 0) {
+				activeSession.setNextStage(69);
+				activeSession.setStage(69);
+				activeSession.setOcultarCorreta(0);
+				sessionService.saveSession(activeSession);
+				return textAuxiliary.returnSimpleMessage("Simulado encerrado. Digite OK para ver os resultados.", chatId);
+			}
+			return textAuxiliary.returnSimpleMessage("Existem "+quantityNotAnswered+" questões ainda não respondidas", chatId);
+		}
+		
+		List<Integer> possibleQuestions = questionRepository.getAllValidQuestionsId(chatId, matrix);
+		
+		Integer randomIndex = new Random().nextInt(possibleQuestions.size());
+        Integer selectedQuestionIndex = possibleQuestions.get(randomIndex);
+		
+        Optional<QuestionDto> selectedQuestion = questionRepository.findById((long) selectedQuestionIndex);
+        
+        if(selectedQuestion.isPresent()) {
+            questionList.add(selectedQuestion.get());            
+            addAnswer(chatId, selectedQuestion.get());
+        }
+
+		return textAuxiliary.question2Telegram(questionList, chatId);
 	}
 	
+	public void addAnswer(String chatId, QuestionDto question){
+		AnswerDto newAnswer = new AnswerDto();
+		newAnswer.setChatId(chatId);
+		newAnswer.setCurrentlyActive(1);
+		newAnswer.setQuestionId(question.getId());
+		newAnswer.setMatrix(question.getMatriz());
+		newAnswer.setCreatedAt(LocalDateTime.now());
+		newAnswer.setCorrectAnswerId(question.getAlternativaCorreta());
+		
+		answerService.save(newAnswer);
+	}
+	
+	public String closeSessionAndCalculate(String chatId) {
+		
+		
+		List<Integer> correctAnswers 	= answerService.getCorrectAnswerNumbers(chatId);
+		List<Integer> answers 			= answerService.getAnswerNumbers(chatId);
+		
+		
+		
+		
+		return textAuxiliary.getResults(correctAnswers, answers);
+	}
+
+	public List<TelegramDto> endSim(String chatId, SessionDto activeSession) {
+		List<TelegramDto> returnMessages = new ArrayList<TelegramDto>();
+		String timeExpend = textAuxiliary.getPeriodFromSeconds(answerService.getTimeElapsed(chatId));
+		returnMessages.addAll(textAuxiliary.returnSimpleMessage("Simulado encerrado. Seu tempo gasto foi de "+timeExpend, chatId));
+		returnMessages.addAll(textAuxiliary.returnSimpleMessage(closeSessionAndCalculate(chatId), chatId));
+		answerService.inactivateAnswerSessions(chatId);
+		return returnMessages;
+	}
+
+	public QuestionDto getQuestionById(Integer questionId) {
+		return questionRepository.findById((long)questionId).get();
+	}
 	
 
 	

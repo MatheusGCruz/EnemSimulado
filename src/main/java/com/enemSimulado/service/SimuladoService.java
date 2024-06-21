@@ -24,7 +24,10 @@ public class SimuladoService {
 	
 	
 	public List<TelegramDto> getRandomQuestion(String chatId, SessionDto activeSession) {
-		return textAuxiliary.question2Telegram(questionService.getRandomQuestion(chatId, activeSession), chatId);
+		if(activeSession.getStage() == 69) {
+			return questionService.endSim(chatId, activeSession);
+		}
+		return questionService.getRandomQuestion(chatId, activeSession);
 	} 
 	
 	

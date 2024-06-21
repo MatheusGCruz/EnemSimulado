@@ -12,7 +12,9 @@ import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
@@ -20,6 +22,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import com.enemSimulado.auxiliary.TextAuxiliary;
+import com.enemSimulado.dto.AnswerDto;
+import com.enemSimulado.dto.SessionDto;
 import com.enemSimulado.dto.TelegramDto;
 
 @Service
@@ -32,6 +36,9 @@ public class BotService extends TelegramLongPollingBot {
 	    
 	    @Autowired	    FluxService 	fluxService;
 	    @Autowired    	StageService 	stageService;
+	    @Autowired    	AnswerService 	answerService;
+	    @Autowired    	SessionService 	sessionService;
+	    @Autowired    	QuestionService questionService;
 	    @Autowired		TextAuxiliary	textAuxiliary;
 	        
 	    public String sendNewMessage(BotService bot) {     	
@@ -81,7 +88,7 @@ public class BotService extends TelegramLongPollingBot {
 					System.err.println("Error sending message: " + ex.getMessage());
 				}
 				
-				sendTelegramMessages(fluxService.getNextMessage(receivedMessage, chatId, fileId)); 
+				sendTelegramMessages(fluxService.getNextMessage(receivedMessage, chatId, fileId),"Question"); 
 			}
 			
 			// Edited Message
@@ -91,18 +98,57 @@ public class BotService extends TelegramLongPollingBot {
 				String editedMessageId = update.getEditedMessage().getMessageId().toString();
 				String teste ="";
 			}
+			
+			if(update.hasCallbackQuery()) {
+				Integer selectedAnswer = textAuxiliary.getAuxiliaryResponse(update.getCallbackQuery().getData());
+				String chatId = update.getCallbackQuery().getFrom().getId().toString();
+				Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+				String command = "None";
+				
+				SessionDto activeSession = sessionService.getActiveSessionByChatId(chatId);
+				
+
+				
+				switch(selectedAnswer){
+					case	1:
+					case	2:
+					case	3:
+					case	4:
+					case	5:
+								answerService.updateAnswer(selectedAnswer, chatId, messageId.toString());
+								editMessage(update.getCallbackQuery().getMessage().getText() +" ", chatId, messageId, selectedAnswer);
+								 
+									break;
+					case	10: answerService.updateAnswer(0, chatId, messageId.toString());
+									break;
+					case 	99: sessionService.encerrarSessoes(chatId);
+									command = "/Encerrar";
+									break;									
+				}
+				
+				if(activeSession.getStage() == 69) {
+					updateAllAnswers(chatId, activeSession);
+					sendTelegramMessages(questionService.endSim(chatId, activeSession), "Report");
+				}
+				else {				
+					sendTelegramMessages(fluxService.getNextMessage(command, chatId, null), "Question");
+				}
+				
+			}
  	
 	    	
 	    }
 	    
 	    
-	    public void sendTelegramMessages(List<TelegramDto> messageList) {
+	    public void sendTelegramMessages(List<TelegramDto> messageList, String type) {
 	    	
 	    	for(TelegramDto message: messageList) {
-	    		setActualCommands(message.getChatId());
-	    		if(message.getText() != null) {sendMessage(message.getText(), message.getChatId());	}
-	    		if(message.getPhoto() != null) {sendImage(message.getPhoto(), message.getChatId());	}
+	    			setActualCommands(message.getChatId());
+	    			if(message.getText() != null && message.getInLineKeys() == null) {sendMessage(message.getText(), message.getChatId());	}
+	    			if(message.getPhoto() != null) {sendImage(message.getPhoto(), message.getChatId());	}
+	    			if(message.getText() != null && message.getInLineKeys() != null) {sendInLineKeys(message, type);	}
 	    	}
+	    	
 	    }
 
 	    public void sendMessage(String message, String chatId) {
@@ -120,12 +166,66 @@ public class BotService extends TelegramLongPollingBot {
 	        }
 	    }
 	    
+	    public void editMessage(String message, String chatId, Integer messageId, Integer selectedAnswer) {
+	    	
+	    	SessionDto activeSession = sessionService.findActiveSession(chatId);
+	    	AnswerDto answer = answerService.getAnswer(chatId, messageId);
+	    	
+	    	List<String> replyList = new ArrayList<String>();
+	    	
+	    	Boolean hideAnswer = true;
+	    	Integer correctAnswer = 0;
+	    	if(activeSession != null && activeSession.getOcultarCorreta() == 0) {
+	    		hideAnswer = false;
+	    	}
+	    	if(answer != null && answer.getCorrectAnswerId() != null) {
+	    		correctAnswer = answer.getCorrectAnswerId();
+	    	}
+	    	
+	    	
+            EditMessageText newMessage = new EditMessageText();
+            newMessage.setChatId(chatId);
+            newMessage.setMessageId(messageId);
+            newMessage.setText(message);
+            
+            
+            newMessage.setReplyMarkup(textAuxiliary.replyKeyboardAnswered(correctAnswer, selectedAnswer, hideAnswer));
+            
+            try {
+                execute(newMessage); 
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+	    }
+	    
+	    public Message sendInLineKeys(TelegramDto message, String type) {
+	    	
+	        SendMessage newMessage = new SendMessage();
+	        newMessage.setChatId(message.getChatId());
+	        newMessage.setText(message.getText());
+	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard(type));
+	        
+	        Message returnMessage = new Message();
+	        
+	        try {
+	        	returnMessage = execute(newMessage);
+	            System.out.println("InLine sent successfully!");
+	      
+	        } catch (TelegramApiException e) {
+	            System.err.println("Error sending message: " + e.getMessage());
+	        }
+	        
+	        
+	        //answerService.updateAnswer(0, message.getChatId(), returnMessage.getMessageId().toString());
+	        return returnMessage;
+	    }
+	    
 	    public void sendInitialMessage() {
 	    			
 	        SendMessage newMessage = new SendMessage();
 	        newMessage.setChatId(baseChatId);
 	        newMessage.setText("Creating New Instance");
-	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard());
+	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard("Menu"));
 	        try {
 	        	execute(newMessage);
 	            System.out.println("Message sent successfully!");
@@ -166,6 +266,15 @@ public class BotService extends TelegramLongPollingBot {
 	    @Override
 	    public String getBotToken() {
 	        return botToken;
+	    }
+	    
+	    public void updateAllAnswers(String chatId, SessionDto activeSession) {
+	    	List<AnswerDto> answers = answerService.getAllSessionAnswers(chatId);
+	    	for(AnswerDto answer: answers) {
+	    		String message = questionService.getQuestionById(answer.getQuestionId()).getQuestao();
+	    		editMessage("Avaliada: "+message, answer.getChatId(), Integer.parseInt(answer.getMessageId()), answer.getAnswerId());
+	    	}    	
+	    	
 	    }
 	    
 	
