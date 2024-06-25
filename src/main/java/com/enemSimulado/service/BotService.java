@@ -103,12 +103,8 @@ public class BotService extends TelegramLongPollingBot {
 				Integer selectedAnswer = textAuxiliary.getAuxiliaryResponse(update.getCallbackQuery().getData());
 				String chatId = update.getCallbackQuery().getFrom().getId().toString();
 				Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-				String command = "None";
-				
-				SessionDto activeSession = sessionService.getActiveSessionByChatId(chatId);
-				
-
-				
+				String command = "None";				
+				SessionDto activeSession = sessionService.getActiveSessionByChatId(chatId);				
 				switch(selectedAnswer){
 					case	1:
 					case	2:
@@ -116,8 +112,7 @@ public class BotService extends TelegramLongPollingBot {
 					case	4:
 					case	5:
 								answerService.updateAnswer(selectedAnswer, chatId, messageId.toString());
-								editMessage(update.getCallbackQuery().getMessage().getText() +" ", chatId, messageId, selectedAnswer);
-								 
+								editMessage(update.getCallbackQuery().getMessage().getText() +" ", chatId, messageId, selectedAnswer);								 
 									break;
 					case	10: answerService.updateAnswer(0, chatId, messageId.toString());
 									break;
