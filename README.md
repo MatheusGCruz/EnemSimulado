@@ -1,2 +1,4 @@
 # EnemSimulado
 Bot Simulador Enem
+
+.
