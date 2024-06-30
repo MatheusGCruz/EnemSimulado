@@ -88,7 +88,7 @@ public class BotService extends TelegramLongPollingBot {
 					System.err.println("Error sending message: " + ex.getMessage());
 				}
 				
-				sendTelegramMessages(fluxService.getNextMessage(receivedMessage, chatId, fileId),"Question"); 
+				sendTelegramMessages(fluxService.getNextMessage(receivedMessage, chatId, fileId)); 
 			}
 			
 			// Edited Message
@@ -100,33 +100,37 @@ public class BotService extends TelegramLongPollingBot {
 			}
 			
 			if(update.hasCallbackQuery()) {
-				Integer selectedAnswer = textAuxiliary.getAuxiliaryResponse(update.getCallbackQuery().getData());
+				String selectedAnswer = update.getCallbackQuery().getData();
 				String chatId = update.getCallbackQuery().getFrom().getId().toString();
 				Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
 				String command = "None";				
 				SessionDto activeSession = sessionService.getActiveSessionByChatId(chatId);				
 				switch(selectedAnswer){
-					case	1:
-					case	2:
-					case	3:
-					case	4:
-					case	5:
-								answerService.updateAnswer(selectedAnswer, chatId, messageId.toString());
-								editMessage(update.getCallbackQuery().getMessage().getText() +" ", chatId, messageId, selectedAnswer);								 
+					case	"A":
+					case	"B":
+					case	"C":
+					case	"D":
+					case	"E":
+								answerService.updateAnswer(textAuxiliary.getAuxiliaryResponse(selectedAnswer), chatId, messageId.toString());
+								editMessage(update.getCallbackQuery().getMessage().getText() +" ", chatId, messageId, textAuxiliary.getAuxiliaryResponse(selectedAnswer));								 
 									break;
-					case	10: answerService.updateAnswer(0, chatId, messageId.toString());
+					case	"Skip": answerService.updateAnswer(0, chatId, messageId.toString());
 									break;
-					case 	99: sessionService.encerrarSessoes(chatId);
+					case	"English":
+					case	"Spanish":
+									sessionService.setLanguage(chatId, selectedAnswer);
+									break;
+					case 	"Close": sessionService.encerrarSessoes(chatId);
 									command = "/Encerrar";
 									break;									
 				}
 				
 				if(activeSession.getStage() == 69) {
 					updateAllAnswers(chatId, activeSession);
-					sendTelegramMessages(questionService.endSim(chatId, activeSession), "Report");
+					sendTelegramMessages(questionService.endSim(chatId, activeSession));
 				}
 				else {				
-					sendTelegramMessages(fluxService.getNextMessage(command, chatId, null), "Question");
+					sendTelegramMessages(fluxService.getNextMessage(command, chatId, null));
 				}
 				
 			}
@@ -135,13 +139,13 @@ public class BotService extends TelegramLongPollingBot {
 	    }
 	    
 	    
-	    public void sendTelegramMessages(List<TelegramDto> messageList, String type) {
+	    public void sendTelegramMessages(List<TelegramDto> messageList) {
 	    	
 	    	for(TelegramDto message: messageList) {
 	    			setActualCommands(message.getChatId());
 	    			if(message.getText() != null && message.getInLineKeys() == null) {sendMessage(message.getText(), message.getChatId());	}
 	    			if(message.getPhoto() != null) {sendImage(message.getPhoto(), message.getChatId());	}
-	    			if(message.getText() != null && message.getInLineKeys() != null) {sendInLineKeys(message, type);	}
+	    			if(message.getText() != null && message.getInLineKeys() != null) {sendInLineKeys(message);	}
 	    	}
 	    	
 	    }
@@ -193,12 +197,12 @@ public class BotService extends TelegramLongPollingBot {
             }
 	    }
 	    
-	    public Message sendInLineKeys(TelegramDto message, String type) {
+	    public Message sendInLineKeys(TelegramDto message) {
 	    	
 	        SendMessage newMessage = new SendMessage();
 	        newMessage.setChatId(message.getChatId());
 	        newMessage.setText(message.getText());
-	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard(type));
+	        newMessage.setReplyMarkup(textAuxiliary.replyKeyboard(message.getInLineKeys()));
 	        
 	        Message returnMessage = new Message();
 	        

@@ -10,11 +10,11 @@ import lombok.Data;
 @Data
 public class TelegramDto {
 	
-	public TelegramDto(String chatId, String text, String photo, List<String> inLineKeys) {
+	public TelegramDto(String chatId, String text, String photo, String footer) {
 		this.chatId = chatId;
 		this.text = text;
 		this.photo = photo;	
-		this.inLineKeys = inLineKeys;
+		this.inLineKeys = footer;
 	}
 
 	@Column
@@ -27,7 +27,7 @@ public class TelegramDto {
 	private String photo;
 	
 	@Transient
-	private List<String> inLineKeys;
+	private String inLineKeys;
 	
 
 }

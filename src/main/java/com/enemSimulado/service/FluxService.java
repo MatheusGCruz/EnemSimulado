@@ -43,7 +43,7 @@ public class FluxService {
 				Integer subGroup = (int) activeSession.getStage()/100;
 				switch(subGroup) {
 					case 4:	return questionService.getQuestionList(command, chatId, activeSession.getStage(), fileId);	// Pesquisa Questoes
-					case 5: return sessionService.configSession(activeSession, command, chatId);						// Config sessao
+					case 5: return sessionService.configSession(activeSession, command, chatId, null);						// Config sessao
 					case 6: return simuladoService.getRandomQuestion(chatId, activeSession);							// Simulado
 					case 8:	return contactService.insertContact(command, chatId, activeSession.getStage());				// Contatos
 					case 9: return questionService.setQuestion(command, chatId, activeSession.getStage(), fileId);		// Registros
@@ -57,8 +57,8 @@ public class FluxService {
 			case "/registrar"				: return userService.registerUser("Teste", chatId, 1);
 	        case "/matrizes"				: return matrixService.getMatrix(chatId);
 	        case "/pesquisa"				: return getMessage(command, chatId);
-	        case "/simulado"				: return sessionService.createNewSession(chatId, 5);
-	        case "/simulado_rapido"			: return sessionService.createNewFastSim(chatId, 51);
+	        case "/simulado"				: return sessionService.createNewSim(chatId, 5, 45);
+	        case "/simulado_rapido"			: return sessionService.createNewSim(chatId, 51, 5);
 	        case "/contato"					: return getMessage(command, chatId);
 	        case "/nova_questao"			: return sessionService.createNewSession(chatId, 90);
 	        case "/nova_questao_com_imagem"	: return sessionService.createNewSession(chatId, 91);
@@ -66,7 +66,9 @@ public class FluxService {
 			}
 		}
 		
-		
+		if(command == "/encerrar") {
+			return textAuxiliary.returnSimpleMessage("Sessão encerrada.", chatId);
+		}
 		return textAuxiliary.returnSimpleMessage(command.concat(" - Comando inválido"), chatId);
 	}
 	
