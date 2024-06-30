@@ -26,21 +26,21 @@ public class SessionService {
 	public List<TelegramDto> createNewSession(String chatId, Integer stage) {
     	StageDto newStage = stageRepository.findFirstByStage(stage);
     	SessionDto activeSession = getActiveSession(chatId, newStage);      	
-    	return configSession(activeSession, "", chatId);
+    	return configSession(activeSession, "", chatId, null);
 	}
 	
-	public List<TelegramDto> createNewFastSim(String chatId, Integer stage) {
+	public List<TelegramDto> createNewSim(String chatId, Integer stage, Integer questionQuantity) {
     	StageDto newStage = stageRepository.findFirstByStage(stage);
     	SessionDto activeSession = getActiveSession(chatId, newStage); 
     	activeSession.setAno(0);
-    	activeSession.setLinguagem(1);
+    	activeSession.setLinguagem(0);
     	activeSession.setMatriz(0);
-    	activeSession.setQuantidadeTopico(5);
+    	activeSession.setQuantidadeTopico(questionQuantity);
     	activeSession.setOcultarCorreta(1);
-    	return configSession(activeSession, "", chatId);
+    	return configSession(activeSession, "", chatId, "Language");
 	}
 	
-	public List<TelegramDto> configSession(SessionDto activeSession, String command, String chatId) {		
+	public List<TelegramDto> configSession(SessionDto activeSession, String command, String chatId, String footer) {		
 		
 		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
 		List<TelegramDto> messageList = new ArrayList<TelegramDto>();
@@ -50,7 +50,7 @@ public class SessionService {
 				break;
 							
 		}
-		returnList.addAll(textAuxiliary.returnSimpleMessage(saveSession(activeSession), chatId));	
+		returnList.addAll(textAuxiliary.returnFooterMessage(saveSession(activeSession), chatId, footer));	
 		returnList.addAll(messageList);
 		
 		return returnList;
@@ -73,6 +73,12 @@ public class SessionService {
 		TelegramDto addMessage = new TelegramDto(chatId, "Sessão Encerrada", null, null);
 		returnList.add(addMessage);
 		return returnList;
+	}
+	
+	public	void setLanguage(String chatId, String language){
+		SessionDto activeSession = findActiveSession(chatId);
+		activeSession.setLinguagem(textAuxiliary.getAuxiliaryLanguage(language));
+		sessionRepository.save(activeSession);				
 	}
 	
 	public SessionDto findActiveSession(String chatId) {

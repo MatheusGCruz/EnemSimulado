@@ -42,4 +42,7 @@ public class StageDto {
 	
 	@Column
 	private Integer adminStage;
+	
+	@Column
+	private Integer stageOrder;
 }

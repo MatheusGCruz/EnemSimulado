@@ -9,6 +9,7 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.enemSimulado.auxiliary.BusinessAuxiliary;
 import com.enemSimulado.auxiliary.TextAuxiliary;
 import com.enemSimulado.dto.AnswerDto;
 import com.enemSimulado.dto.MatrixDto;
@@ -23,19 +24,12 @@ import com.enemSimulado.repository.StageRepository;
 @Service
 public class QuestionService {
 
-	@Autowired
-	QuestionRepository questionRepository;
-	
-	@Autowired
-	StageRepository stageRepository;
-		
-	@Autowired	AnswerService answerService;
-	
-	@Autowired
-	SessionService sessionService;
-	
-	@Autowired
-	TextAuxiliary textAuxiliary;
+	@Autowired	QuestionRepository 	questionRepository;
+	@Autowired 	StageRepository 	stageRepository;
+	@Autowired	AnswerService 		answerService;
+	@Autowired	SessionService 		sessionService;
+	@Autowired 	TextAuxiliary 		textAuxiliary;
+	@Autowired 	BusinessAuxiliary 	businessAuxiliary;
 	
 	
 	
@@ -169,6 +163,11 @@ public class QuestionService {
 		
 		Long quantityAnswered = answerService.getQuantityAnswered(chatId);
 		Long quantityNotAnswered = answerService.getQuantityNotAnswered(chatId);
+		Integer languageQuantity = businessAuxiliary.languageQuantity(activeSession.getQuantidadeTopico());
+		
+		if(quantityAnswered >= languageQuantity-1) {
+			sessionService.setLanguage(chatId, "General");
+		}
 		
 		Integer selectedQuantity = 1;
 		if(activeSession.getQuantidadeTopico() != null) {
@@ -182,12 +181,12 @@ public class QuestionService {
 				activeSession.setStage(69);
 				activeSession.setOcultarCorreta(0);
 				sessionService.saveSession(activeSession);
-				return textAuxiliary.returnSimpleMessage("Simulado encerrado. Digite OK para ver os resultados.", chatId);
+				return textAuxiliary.returnFooterMessage("Simulado encerrado. Digite OK para ver os resultados.", chatId, "Report");
 			}
 			return textAuxiliary.returnSimpleMessage("Existem "+quantityNotAnswered+" questões ainda não respondidas", chatId);
 		}
 		
-		List<Integer> possibleQuestions = questionRepository.getAllValidQuestionsId(chatId, matrix);
+		List<Integer> possibleQuestions = questionRepository.getAllValidQuestionsId(chatId, matrix, activeSession.getLinguagem());
 		
 		Integer randomIndex = new Random().nextInt(possibleQuestions.size());
         Integer selectedQuestionIndex = possibleQuestions.get(randomIndex);

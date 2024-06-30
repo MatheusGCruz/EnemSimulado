@@ -17,7 +17,9 @@ public interface QuestionRepository extends JpaRepository<QuestionDto, Long>{
 
 	QuestionDto findByAzulAndAnoAndMatrizAndLinguagem(Integer questao, Integer ano, Integer matriz, Integer linguagem);
 	
-	@Query("SELECT Q.id FROM QuestionDto Q LEFT JOIN AnswerDto A  ON A.questionId = Q.id AND A.chatId = :chatId AND A.currentlyActive = 1 WHERE Q.matriz = :matriz AND A.chatId is null")
-	List<Integer> getAllValidQuestionsId(@Param("chatId") String chatId,@Param("matriz") Integer matriz);
+	@Query("SELECT Q.id FROM QuestionDto Q "
+			+ "LEFT JOIN AnswerDto A  ON A.questionId = Q.id AND A.chatId = :chatId AND A.currentlyActive = 1 "
+			+ "WHERE Q.matriz = :matriz AND A.chatId is null AND linguagem = :linguagem")
+	List<Integer> getAllValidQuestionsId(@Param("chatId") String chatId,@Param("matriz") Integer matriz, @Param("linguagem") Integer linguagem);
 
 }

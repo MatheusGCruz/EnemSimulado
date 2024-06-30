@@ -116,8 +116,18 @@ public class TextAuxiliary {
 	}
 	
 	public List<TelegramDto> returnSimpleMessage(String message, String chatId){
+		
 		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
 		TelegramDto addMessage = new TelegramDto(chatId, message, null, null);
+		returnList.add(addMessage);
+		
+		return returnList;
+	}
+	
+	public List<TelegramDto> returnFooterMessage(String message, String chatId, String footer){
+		
+		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
+		TelegramDto addMessage = new TelegramDto(chatId, message, null, footer);
 		returnList.add(addMessage);
 		
 		return returnList;
@@ -150,8 +160,7 @@ public class TextAuxiliary {
 		for(QuestionDto question:questionList) {
 			returnList.add(questionHeader(question, chatId));
 			
-			List<String> footer = new ArrayList<String>();
-			footer.add("Question");
+			String footer = "Question";
 			
 			if(question.getImagem() != null) { returnList.add(telegramObject(chatId, null, question.getImagem(), null)); }
 			if(question.getImagemAlternativas() != null) { returnList.add(telegramObject(chatId, null, question.getImagemAlternativas(), null)); }			
@@ -178,7 +187,7 @@ public class TextAuxiliary {
 		return newObject;
 	}
 	
-	private TelegramDto telegramObject(String chatId, String message, String photo, List<String> inLineKeys) {
+	private TelegramDto telegramObject(String chatId, String message, String photo, String inLineKeys) {
 		TelegramDto newObject = new TelegramDto(chatId, message, photo, inLineKeys);
 		return newObject;
 	}
@@ -192,15 +201,23 @@ public class TextAuxiliary {
         
     	InlineKeyboardButton pularButton = new InlineKeyboardButton();
     	pularButton.setText("Pular");
-    	pularButton.setCallbackData("Pular");    	
+    	pularButton.setCallbackData("Skip");    	
     	
     	InlineKeyboardButton encerrarButton = new InlineKeyboardButton();
     	encerrarButton.setText("Encerrar");
-    	encerrarButton.setCallbackData("Encerrar");  
+    	encerrarButton.setCallbackData("Close");  
     	
     	InlineKeyboardButton reportButton = new InlineKeyboardButton();
     	reportButton.setText("Relatorio");
-    	reportButton.setCallbackData("Relatorio"); 
+    	reportButton.setCallbackData("Report"); 
+    	
+    	InlineKeyboardButton englishButton = new InlineKeyboardButton();
+    	englishButton.setText("Inglês");
+    	englishButton.setCallbackData("English"); 
+    	
+    	InlineKeyboardButton spanishButton = new InlineKeyboardButton();
+    	spanishButton.setText("Espanhol");
+    	spanishButton.setCallbackData("Spanish"); 
         
         switch(type) {
         case "Question": 
@@ -237,6 +254,12 @@ public class TextAuxiliary {
 		case "Report": 
 	    	firstRow.add(reportButton);
 	    	firstRow.add(encerrarButton);
+	        keyboard.add(firstRow);
+	        break;
+	        
+		case "Language": 
+	    	firstRow.add(englishButton);
+	    	firstRow.add(spanishButton);
 	        keyboard.add(firstRow);
 	        break;
 
@@ -291,11 +314,11 @@ public InlineKeyboardMarkup replyKeyboardAnswered(Integer correct, Integer answe
 	        
 	    	InlineKeyboardButton pularButton = new InlineKeyboardButton();
 	    	pularButton.setText("Pular");
-	    	pularButton.setCallbackData("Pular");    	
+	    	pularButton.setCallbackData("Skip");    	
 	    	
 	    	InlineKeyboardButton encerrarButton = new InlineKeyboardButton();
 	    	encerrarButton.setText("Encerrar");
-	    	encerrarButton.setCallbackData("Encerrar");  
+	    	encerrarButton.setCallbackData("Close");  
 	    	secondRow.add(pularButton);
 	    	secondRow.add(encerrarButton);
 
@@ -320,10 +343,17 @@ public InlineKeyboardMarkup replyKeyboardAnswered(Integer correct, Integer answe
 			case ("C"): return 3;
 			case ("D"): return 4;
 			case ("E"): return 5;
-			case ("Pular"): return 10;
-			case ("Encerrar"): return 99;
-		}
-		
+		}		
+		return response;
+	}
+	
+	public Integer getAuxiliaryLanguage(String language) {
+		Integer response = 0;
+		switch(language){
+			case ("General"): return 0;
+			case ("English"): return 1;
+			case ("Spanish"): return 2;
+		}		
 		return response;
 	}
 	
