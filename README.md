@@ -19,14 +19,14 @@
 <br/>/contato			- Envio de dúvidas, bugs, críticas e sugestões
 <br/>/matrizes			- Mostra as definições das matrizes de conhecimento
 <br/>/pesquisa			- Pesquisa questões por texto ou ano
-<br/>
+
 ## Anos incluídos
 <br/>
 <br/>Foram incluídos, até o momento, os anos de 2023, 2021 e 2020. 
 <br/>Os demais anos serão incluído em breve.
-<br/>
+
 ## Changelog
-<br/>
+
 ### Versão Beta 0.1.1
 <br/>
 <br/>- Lançamento do projeto ao público geral
