@@ -121,7 +121,7 @@ public class BotService extends TelegramLongPollingBot {
 									sessionService.setLanguage(chatId, selectedAnswer);
 									break;
 					case 	"Close": sessionService.encerrarSessoes(chatId);
-									command = "/Encerrar";
+									command = "/encerrar";
 									break;									
 				}
 				
