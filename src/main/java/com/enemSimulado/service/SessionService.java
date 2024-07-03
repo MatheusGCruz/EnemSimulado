@@ -59,7 +59,7 @@ public class SessionService {
 	public List<TelegramDto> encerrarSessoes(String chatId) {		
 		
 		List<SessionDto> userSessions = new ArrayList<SessionDto>();
-		userSessions = sessionRepository.findAllBytelegramChatId(chatId);
+		userSessions = sessionRepository.findBytelegramChatIdAndIsActive(chatId, 1L);
 		
 		for(SessionDto session: userSessions) {
 			session.setEndedAt(LocalDateTime.now());
