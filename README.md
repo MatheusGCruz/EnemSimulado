@@ -31,3 +31,4 @@
 <br/>
 <br/>- Lançamento do projeto ao público geral
 <br/>- Funcionalidades: Simulado, pesquisa, contato
+<br/>- Bugs ajustados: Exibição de certas mensagens não condizia

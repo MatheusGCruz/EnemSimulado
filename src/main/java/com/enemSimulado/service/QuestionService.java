@@ -181,7 +181,7 @@ public class QuestionService {
 				activeSession.setStage(69);
 				activeSession.setOcultarCorreta(0);
 				sessionService.saveSession(activeSession);
-				return textAuxiliary.returnFooterMessage("Simulado encerrado. Digite OK para ver os resultados.", chatId, "Report");
+				return textAuxiliary.returnFooterMessage("Simulado encerrado. Clique em Relatório para ver os resultados.", chatId, "Report");
 			}
 			return textAuxiliary.returnSimpleMessage("Existem "+quantityNotAnswered+" questões ainda não respondidas", chatId);
 		}
