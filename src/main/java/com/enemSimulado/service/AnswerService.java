@@ -21,7 +21,9 @@ public class AnswerService {
 	}
 	
 	public void updateAnswer(Integer answerId, String chatId, String messageId) {
-		AnswerDto existAnswer = answerRepository.getByChatIdAndMessageIdAndCurrentlyActive(chatId, null, 1);
+		AnswerDto existAnswer = new AnswerDto();
+		existAnswer = answerRepository.getByChatIdAndMessageIdAndCurrentlyActive(chatId, null, 1);
+		
 		if(existAnswer == null || existAnswer.getChatId() == null) {
 			return;
 		}

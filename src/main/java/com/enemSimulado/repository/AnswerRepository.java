@@ -35,10 +35,12 @@ public interface AnswerRepository extends JpaRepository<AnswerDto, Long>{
 	@Query("UPDATE AnswerDto SET messageId = :messageId WHERE chatId = :chatId AND currentlyActive = 1 AND messageId is null")
     void updateAnswer(@Param("chatId") String chatId, @Param("chatId") String messageId);
 
-	//@Query("SELECT * FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1 AND messageId is null")
-    //AnswerDto getNotAnswered(@Param("chatId") String chatId);
+	@Query("SELECT id,answerId,chatId,correctAnswerId,currentlyActive,matrix,questionId,answeredAt,createdAt,messageId FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1 AND messageId = :messageId AND answerId is null")
+    AnswerDto getNotAnswered(@Param("chatId") String chatId, @Param("messageId") String messageId);
 
 	AnswerDto getByChatIdAndMessageIdAndCurrentlyActive(String chatId, String messageId, int i);
+	AnswerDto getByChatIdAndMessageIdAndAnswerId(String chatId, String messageId, int answerId);
+	
 	List<AnswerDto> getByChatIdAndCurrentlyActive(String chatId, int i);
 
 	@Query("SELECT COUNT(*) FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1 AND matrix = :matrix AND answerId = correctAnswerId")
@@ -52,6 +54,8 @@ public interface AnswerRepository extends JpaRepository<AnswerDto, Long>{
 	
 	@Query("SELECT COUNT(*) FROM AnswerDto WHERE chatId = :chatId AND currentlyActive = 1")
 	Integer getAllAnswers(String chatId);
+
+	AnswerDto getByChatIdAndMessageIdAndAnswerIdIsNull(String chatId, String string);
 
 
 }
