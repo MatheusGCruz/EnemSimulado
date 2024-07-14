@@ -3,6 +3,7 @@ package com.enemSimulado.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -96,7 +97,11 @@ public class SessionService {
 	}
 	
 	public SessionDto getActiveSessionByChatId(String chatId) {
-		return sessionRepository.findBytelegramChatIdAndIsActive(chatId, (long)1).get(0);
+		List<SessionDto> sessionList = sessionRepository.findBytelegramChatIdAndIsActive(chatId, (long)1);
+		if(sessionList.size() >0 ) {
+			return sessionList.get(0);
+		}
+		return null;		
 	}
 	
 	public SessionDto getActiveSession(String chatId, StageDto currentStage) {
@@ -118,6 +123,7 @@ public class SessionService {
 			newSession.setCreatedAt(LocalDateTime.now());
 			newSession.setStage(currentStage.getStage());	
 			newSession.setNextStage(currentStage.getChildStage());
+			newSession.setOcultarCorreta(0);
 			activeSession = sessionRepository.save(newSession);
 		}
 		else {
@@ -138,6 +144,10 @@ public class SessionService {
 		sessionRepository.save(activeSession);
 		return currentStage.getMessage();		
 		
+	}
+
+	public void reactiveSessionByChatId(String chatId) {
+		sessionRepository.reactiveSessionByChatId(chatId);
 	}
 	
 

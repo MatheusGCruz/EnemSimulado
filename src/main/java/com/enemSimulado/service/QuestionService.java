@@ -134,8 +134,11 @@ public class QuestionService {
 		}catch(Exception ex) {
 			System.err.println("Error sending message: " +ex.getMessage());
 		}		
-		sessionService.encerrarSessoes(chatId);
-		return textAuxiliary.question2Telegram(questionList, chatId);
+		
+		for(QuestionDto question :questionList){
+			addAnswer(chatId, question);
+		}
+		return textAuxiliary.questionAnswered2Telegram(questionList, chatId,"Search");
 
 	}
 	
@@ -151,7 +154,7 @@ public class QuestionService {
 		sessionService.encerrarSessoes(chatId);
 		
 		switch(questionParameters.get(0)) {
-			case "azul": return textAuxiliary.question2Telegram(questionRepository.findByAnoAndAzul(ano, numero), chatId);
+			case "azul": return textAuxiliary.questionAnswered2Telegram(questionRepository.findByAnoAndAzul(ano, numero), chatId,"Question");
 		}		
 
 		return textAuxiliary.returnSimpleMessage("Questão não encontrada", chatId);
@@ -198,7 +201,7 @@ public class QuestionService {
             addAnswer(chatId, selectedQuestion.get());
         }
 
-		return textAuxiliary.question2Telegram(questionList, chatId);
+		return textAuxiliary.question2Telegram(questionList, chatId,"Question");
 	}
 	
 	public void addAnswer(String chatId, QuestionDto question){

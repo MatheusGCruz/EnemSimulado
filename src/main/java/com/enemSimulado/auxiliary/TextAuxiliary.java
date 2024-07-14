@@ -154,14 +154,11 @@ public class TextAuxiliary {
 	}
 	
 	
-	public List<TelegramDto> question2Telegram(List<QuestionDto> questionList, String chatId){
+	public List<TelegramDto> question2Telegram(List<QuestionDto> questionList, String chatId, String footer){
 		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
 		
 		for(QuestionDto question:questionList) {
-			returnList.add(questionHeader(question, chatId));
-			
-			String footer = "Question";
-			
+			returnList.add(questionHeader(question, chatId));			
 			if(question.getImagem() != null) { returnList.add(telegramObject(chatId, null, question.getImagem(), null)); }
 			if(question.getImagemAlternativas() != null) { returnList.add(telegramObject(chatId, null, question.getImagemAlternativas(), null)); }			
 			if(question.getQuestao() != null) { returnList.add(telegramObject(chatId, question.getQuestao(), null, footer)); }				
@@ -173,8 +170,27 @@ public class TextAuxiliary {
 		}
 		if(returnList.size() >= 10) {
 			returnList = returnSimpleMessage("Foram encontradas mais de 10 questões com o termo pesquisado. Por favor, refine sua pesquisa.", chatId);
-		}	
+		}			
+		return returnList;
+	}
+	
+	public List<TelegramDto> questionAnswered2Telegram(List<QuestionDto> questionList, String chatId, String footer){
+		List<TelegramDto> returnList = new ArrayList<TelegramDto>();
 		
+		for(QuestionDto question:questionList) {
+			returnList.add(answerHeader(question, chatId));			
+			if(question.getImagem() != null) { returnList.add(telegramObject(chatId, null, question.getImagem(), null)); }
+			if(question.getImagemAlternativas() != null) { returnList.add(telegramObject(chatId, null, question.getImagemAlternativas(), null)); }			
+			if(question.getQuestao() != null) { returnList.add(telegramObject(chatId, question.getQuestao(), null, footer)); }				
+			
+		}
+		
+		if(returnList.size() == 0) {
+			returnList = returnSimpleMessage("Questão não encontrada", chatId);
+		}
+		if(returnList.size() >= 10) {
+			returnList = returnSimpleMessage("Foram encontradas mais de 10 questões com o termo pesquisado. Por favor, refine sua pesquisa.", chatId);
+		}			
 		return returnList;
 	}
 	
@@ -182,6 +198,16 @@ public class TextAuxiliary {
 		StringBuilder header = new StringBuilder();
 		header.append("Questão azul: " + question.getAzul().toString());
 		header.append(", Ano: "+question.getAno().toString());		
+		
+		TelegramDto newObject = new TelegramDto(chatId, header.toString(), null, null);
+		return newObject;
+	}
+	
+	private TelegramDto answerHeader(QuestionDto question, String chatId) {
+		StringBuilder header = new StringBuilder();
+		header.append("Questão azul: " + question.getAzul().toString());
+		header.append(", Ano: "+question.getAno().toString());		
+		header.append(", Gabarito: 🟢 "+  getAuxiliaryValue(question.getAlternativaCorreta()));	
 		
 		TelegramDto newObject = new TelegramDto(chatId, header.toString(), null, null);
 		return newObject;
@@ -240,9 +266,7 @@ public class TextAuxiliary {
 	        keyboard.add(firstRow);
 	        keyboard.add(secondRow);
 	        break;
-	        
-		
-		
+       
 		case "Menu": 
 
 	    	firstRow.add(pularButton);
@@ -343,6 +367,19 @@ public InlineKeyboardMarkup replyKeyboardAnswered(Integer correct, Integer answe
 			case ("C"): return 3;
 			case ("D"): return 4;
 			case ("E"): return 5;
+		}		
+		return response;
+	}
+	
+	public String getAuxiliaryValue(Integer value) {
+		String response = "Não encontrada";
+		switch(value){
+			case (1): return "A";
+			case (2): return "B";
+			case (3): return "C";
+			case (4): return "D";
+			case (5): return "E";
+			case (0): return "Anulada";
 		}		
 		return response;
 	}

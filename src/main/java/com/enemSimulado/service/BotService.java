@@ -104,7 +104,8 @@ public class BotService extends TelegramLongPollingBot {
 				String chatId = update.getCallbackQuery().getFrom().getId().toString();
 				Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
 				String command = "None";				
-				SessionDto activeSession = sessionService.getActiveSessionByChatId(chatId);				
+				SessionDto activeSession = sessionService.getActiveSessionByChatId(chatId);	
+				
 				switch(selectedAnswer){
 					case	"A":
 					case	"B":
@@ -125,7 +126,7 @@ public class BotService extends TelegramLongPollingBot {
 									break;									
 				}
 				
-				if(activeSession.getStage() == 69) {
+				if(activeSession  != null && activeSession.getStage() == 69) {
 					updateAllAnswers(chatId, activeSession);
 					sendTelegramMessages(questionService.endSim(chatId, activeSession));
 				}
@@ -172,10 +173,10 @@ public class BotService extends TelegramLongPollingBot {
 	    	
 	    	List<String> replyList = new ArrayList<String>();
 	    	
-	    	Boolean hideAnswer = true;
+	    	Boolean hideAnswer = false;
 	    	Integer correctAnswer = 0;
-	    	if(activeSession != null && activeSession.getOcultarCorreta() == 0) {
-	    		hideAnswer = false;
+	    	if(activeSession != null && activeSession.getOcultarCorreta() !=null && activeSession.getOcultarCorreta() == 1) {
+	    		hideAnswer = true;
 	    	}
 	    	if(answer != null && answer.getCorrectAnswerId() != null) {
 	    		correctAnswer = answer.getCorrectAnswerId();

@@ -29,6 +29,7 @@
 
 ### Versão Beta 0.1.2
 <br/>- Bug: encerramento de sessões abertas
+<br/>- Bug: gabarito nas questões pesquisadas
 ### Versão Beta 0.1.1
 <br/>
 <br/>- Lançamento do projeto ao público geral
