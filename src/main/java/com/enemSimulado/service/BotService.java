@@ -70,7 +70,7 @@ public class BotService extends TelegramLongPollingBot {
 			
 			// New Message
 			if(update.getMessage() != null) {
-				String chatId = update.getMessage().getChatId().toString();
+				String chatId = getChatId(update);
 				String receivedMessage = update.getMessage().getText();
 				String fileId = null;
 				if(receivedMessage == null) {receivedMessage = "Empty Message";};
@@ -93,7 +93,7 @@ public class BotService extends TelegramLongPollingBot {
 			
 			// Edited Message
 			if(update.getEditedMessage() != null) {
-				String chatId = update.getEditedMessage().getChatId().toString();
+				String chatId = getChatId(update);
 				String receivedMessage = update.getEditedMessage().getText();
 				String editedMessageId = update.getEditedMessage().getMessageId().toString();
 				String teste ="";
@@ -101,7 +101,7 @@ public class BotService extends TelegramLongPollingBot {
 			
 			if(update.hasCallbackQuery()) {
 				String selectedAnswer = update.getCallbackQuery().getData();
-				String chatId = update.getCallbackQuery().getFrom().getId().toString();
+				String chatId = getChatId(update);
 				Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
 				String command = "None";				
 				SessionDto activeSession = sessionService.getActiveSessionByChatId(chatId);	
@@ -255,6 +255,28 @@ public class BotService extends TelegramLongPollingBot {
 			} catch (TelegramApiException e) {
 				e.printStackTrace();
 			}
+	    }
+	    
+	    private String getChatId(Update update) {
+	    	if(update.getMessage() != null) {
+				return update.getMessage().getChatId().toString();
+			}
+	    	
+	    	if(update.getEditedMessage() != null) {
+				return update.getEditedMessage().getChatId().toString();
+			}
+	    	
+	    	if(update.hasCallbackQuery()) {
+	    		if(update.getCallbackQuery().getMessage() != null
+	    				&& update.getCallbackQuery().getMessage().getChat()!= null
+	    				&& update.getCallbackQuery().getMessage().getChat().getId() != null) {
+	    			return update.getCallbackQuery().getMessage().getChat().getId().toString();
+	    		}
+	    		return update.getCallbackQuery().getFrom().getId().toString();
+	    	}
+				
+				
+	    	return "";
 	    }
 	    
 
