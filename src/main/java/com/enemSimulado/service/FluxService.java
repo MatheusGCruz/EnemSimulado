@@ -25,12 +25,13 @@ public class FluxService {
 	@Autowired	TextAuxiliary 	textAuxiliary;
 	@Autowired 	ContactService	contactService;
 	
-	public List<TelegramDto> getNextMessage(String command, String chatId, String fileId) {
+	public List<TelegramDto> getNextMessage(String commands, String chatId, String fileId) {
 		
+		String command = commands.split("@")[0];
 		SessionDto activeSession = sessionService.findActiveSession(chatId);
 		
 		if(activeSession.getIsActive() != null && activeSession.getIsActive() == 1) {
-			switch (command) {
+			switch (commands) {
 				case "/encerrar": 		return sessionService.encerrarSessoes(chatId);
 				case "/ano": 			return getMessage(command, chatId);
 				case "/texto": 			return getMessage(command, chatId);   

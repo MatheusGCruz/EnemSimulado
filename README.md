@@ -27,6 +27,8 @@
 
 ## Changelog
 
+### Versão Beta 0.1.
+<br/>- Bug: grupos de usuarios agora fazemum unico simulado (restrito ao limite de mensagens do telegram)
 ### Versão Beta 0.1.2
 <br/>- Bug: encerramento de sessões abertas
 <br/>- Bug: gabarito nas questões pesquisadas
