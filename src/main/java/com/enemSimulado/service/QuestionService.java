@@ -129,6 +129,8 @@ public class QuestionService {
 	
 	public List<TelegramDto> getTextQuestion(String texto, String chatId) {		
 		List<QuestionDto> questionList = new ArrayList<QuestionDto>();
+		
+		sessionService.encerrarSessoes(chatId);
 		try {
 			questionList = questionRepository.findByQuestaoContaining(texto);
 		}catch(Exception ex) {
@@ -180,8 +182,8 @@ public class QuestionService {
 		
 		if(matrix >= 5 ) {
 			if(quantityNotAnswered == 0) {
-				activeSession.setNextStage(69);
-				activeSession.setStage(69);
+				activeSession.setNextStage(699);
+				activeSession.setStage(699);
 				activeSession.setOcultarCorreta(0);
 				sessionService.saveSession(activeSession);
 				return textAuxiliary.returnFooterMessage("Simulado encerrado. Clique em Relatório para ver os resultados.", chatId, "Report");
@@ -217,13 +219,9 @@ public class QuestionService {
 	}
 	
 	public String closeSessionAndCalculate(String chatId) {
-		
-		
+				
 		List<Integer> correctAnswers 	= answerService.getCorrectAnswerNumbers(chatId);
-		List<Integer> answers 			= answerService.getAnswerNumbers(chatId);
-		
-		
-		
+		List<Integer> answers 			= answerService.getAnswerNumbers(chatId);		
 		
 		return textAuxiliary.getResults(correctAnswers, answers);
 	}

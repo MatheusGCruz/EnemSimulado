@@ -77,7 +77,7 @@ public class FluxService {
 	
 	public List<TelegramDto> getMessage(String command, String chatId) {
 		command = command.replaceAll("[^a-zA-Z0-9]", "");
-		StageDto currentStage = stageRepository.findOneBytelegramCommand(command);
+		StageDto currentStage = stageRepository.findOneBytelegramCommand("/"+command);
 		if(currentStage != null && currentStage.getHasFollowUp() == 1) {
 			sessionService.getActiveSession(chatId, currentStage);				
 		}	
