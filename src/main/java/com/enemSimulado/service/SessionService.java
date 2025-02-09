@@ -88,7 +88,7 @@ public class SessionService {
 		SessionDto activeSession = new SessionDto();
 		
 		for(SessionDto session: userSessions) {
-			if(session.getIsActive() == 1) {
+			if(session.getIsActive() != null && session.getIsActive().equals(1)) {
 				activeSession = session;
 			}
 		}
@@ -111,7 +111,7 @@ public class SessionService {
 		SessionDto activeSession = new SessionDto();
 		
 		for(SessionDto session: userSessions) {
-			if(session.getIsActive() == 1) {
+			if(session.getIsActive() != null && session.getIsActive() == 1) {
 				activeSession = session;
 			}
 		}

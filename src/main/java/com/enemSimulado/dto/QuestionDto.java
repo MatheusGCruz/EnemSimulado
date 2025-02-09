@@ -15,7 +15,7 @@ public class QuestionDto {
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		private Integer id;
 		
-		@Column
+		@Column(columnDefinition="nvarchar(max)")
 		private String questao;
 		
 		@Column
