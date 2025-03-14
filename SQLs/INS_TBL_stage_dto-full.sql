@@ -1,5 +1,5 @@
 /*
-UPDATE [dbo].[stage_dto] SET show_menu = 1 where stage in (1,2,3,4,90,91,5,51,92)
+UPDATE [dbo].[stage_dto] SET admin_stage = 1 where stage in (1,2)
 --*/
 
 
@@ -8,8 +8,8 @@ SELECT *  FROM [ENEM_SIMULADO].[dbo].[stage_dto]
 /*
 
 INSERT INTO [dbo].[stage_dto](admin_stage, child_stage, description, has_follow_up, message, parent_stage, show_menu, stage, stage_order, telegram_command) VALUES
--- (0, 0, 'Registro de novos usuários', 1, 'Mensagem-Registro', 0, 1, 1, NULL, '/register'),
--- (0, 0, 'Inativação de usuario', 1, 'Mensagem - Inativação', 0, 1, 2, NULL, '/exit'),
+-- (1, 0, 'Registro de novos usuários', 1, 'Mensagem-Registro', 0, 1, 1, NULL, '/register'),
+-- (1, 0, 'Inativação de usuario', 1, 'Mensagem - Inativação', 0, 1, 2, NULL, '/exit'),
 -- (0, 0, 'Lista as matrizes de conhecimento', 0, 'Mensagem-Matrizes', 0, 1, 3, NULL, '/matrizes'),
 -- (0, 0, 'Pesquisa questoes do Enem', 1, 'Escolha uma opção: /texto para pesquisar pelo texto da questao, /ano para pesquisar uma questao especifica', 0, 1, 4, NULL, '/pesquisa'),
 -- (0, 0, 'Pesquisa questoes do Enem pelo texto', 1, 'Digite o texto para pesquisar', 4, 0, 401, NULL, '/texto'),
